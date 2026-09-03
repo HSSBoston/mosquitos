@@ -1,0 +1,379 @@
+from pathlib import Path
+import numpy as np, pandas as pd
+
+PRJ_DIR    = Path(__file__).parent
+DATA_DIR   = PRJ_DIR / "data" / "NEON_count-mosquitoes" / "NEON.D01.HARV.DP1.10043.001.2024-07.expanded.20260123T000749Z.RELEASE-2026"
+OUTPUT_DIR = PRJ_DIR / "output"
+
+# False: Keep sampled traps even if a potential QC issue is present.
+#
+# True:
+#   Exclude traps with obvious equipment/sample problems.
+excludeQcIssues = False
+
+
+# Helper function: read and combine all monthly files of a type
+#
+def readNeonFiles(pattern):
+    files = sorted(DATA_DIR.glob(pattern))
+    if not files: raise FileNotFoundError(f"No files found matching: {pattern}")
+
+    data = pd.concat(
+        [pd.read_csv(file) for file in files],
+        ignore_index=True
+    )
+
+    return data
+
+
+# ------------------------------------------------------------
+# 1. Read required NEON tables
+# ------------------------------------------------------------
+
+trappingData = readNeonFiles(
+    "*mos_trapping*.csv"
+)
+
+sortingData = readNeonFiles(
+    "*mos_sorting*.csv"
+)
+
+identificationData = readNeonFiles(
+    "*mos_expertTaxonomistIDProcessed*.csv"
+)
+
+
+# ------------------------------------------------------------
+# 2. Remove duplicate records, if any
+# ------------------------------------------------------------
+
+if "uid" in trappingData.columns:
+    trappingData = trappingData.drop_duplicates(
+        subset="uid"
+    )
+
+if "uid" in sortingData.columns:
+    sortingData = sortingData.drop_duplicates(
+        subset="uid"
+    )
+
+if "uid" in identificationData.columns:
+    identificationData = identificationData.drop_duplicates(
+        subset="uid"
+    )
+
+
+# ------------------------------------------------------------
+# 3. Sum identified mosquitoes within each subsample
+#
+# One subsample can have multiple rows because mosquitoes are
+# separated by scientificName, sex, etc.
+# ------------------------------------------------------------
+
+identifiedCounts = (
+    identificationData
+    .groupby("subsampleID", as_index=False)
+    .agg(
+        identifiedCount=("individualCount", "sum")
+    )
+)
+
+
+# ------------------------------------------------------------
+# 4. Attach proportionIdentified
+#
+# estimatedCount =
+#     identifiedCount / proportionIdentified
+# ------------------------------------------------------------
+
+sampleCounts = (
+    sortingData[
+        [
+            "sampleID",
+            "subsampleID",
+            "proportionIdentified"
+        ]
+    ]
+    .merge(
+        identifiedCounts,
+        on="subsampleID",
+        how="left"
+    )
+)
+
+
+# Check for invalid proportions.
+invalidProportion = (
+    sampleCounts["proportionIdentified"].isna()
+    | (sampleCounts["proportionIdentified"] <= 0)
+    | (sampleCounts["proportionIdentified"] > 1)
+)
+
+if invalidProportion.any():
+    invalidRows = sampleCounts.loc[
+        invalidProportion,
+        [
+            "sampleID",
+            "subsampleID",
+            "proportionIdentified"
+        ]
+    ]
+
+    raise ValueError(
+        "Invalid proportionIdentified values found:\n"
+        + invalidRows.to_string(index=False)
+    )
+
+
+sampleCounts["estimatedCount"] = (
+    sampleCounts["identifiedCount"]
+    / sampleCounts["proportionIdentified"]
+)
+
+
+# ------------------------------------------------------------
+# 5. Attach estimated mosquito counts to trapping records
+# ------------------------------------------------------------
+
+trappingData = trappingData.merge(
+    sampleCounts[
+        [
+            "sampleID",
+            "estimatedCount"
+        ]
+    ],
+    on="sampleID",
+    how="left"
+)
+
+
+# ------------------------------------------------------------
+# 6. Distinguish true zero catches from unsampled events
+#
+# If a trap was sampled and targetTaxaPresent == "N",
+# mosquito abundance is zero.
+#
+# Unsampled records are not treated as zeros.
+# ------------------------------------------------------------
+
+zeroCatch = (
+    trappingData["sampleID"].notna()
+    & trappingData["targetTaxaPresent"].eq("N")
+)
+
+trappingData.loc[
+    zeroCatch & trappingData["estimatedCount"].isna(),
+    "estimatedCount"
+] = 0
+
+
+# ------------------------------------------------------------
+# 7. Keep records where trapping actually occurred
+# ------------------------------------------------------------
+
+trappingData["trapHours"] = pd.to_numeric(
+    trappingData["trapHours"],
+    errors="coerce"
+)
+
+sampledData = trappingData.loc[
+    trappingData["sampleID"].notna()
+    & (trappingData["trapHours"] > 0)
+].copy()
+
+
+# ------------------------------------------------------------
+# 8. Basic quality-control flag
+# ------------------------------------------------------------
+
+sampledData["qcPass"] = True
+
+
+def requireValue(columnName, acceptableValue):
+    if columnName not in sampledData.columns:
+        return
+
+    failedQc = (
+        sampledData[columnName].notna()
+        & ~sampledData[columnName].eq(acceptableValue)
+    )
+
+    sampledData.loc[
+        failedQc,
+        "qcPass"
+    ] = False
+
+
+requireValue(
+    "samplingImpractical",
+    "OK"
+)
+
+requireValue(
+    "fanStatus",
+    "On"
+)
+
+requireValue(
+    "catchCupStatus",
+    "OK"
+)
+
+requireValue(
+    "sampleCondition",
+    "No known compromise"
+)
+
+requireValue(
+    "CO2Status",
+    "Present"
+)
+
+
+if "dataQF" in sampledData.columns:
+    sampledData.loc[
+        sampledData["dataQF"].notna(),
+        "qcPass"
+    ] = False
+
+
+if excludeQcIssues:
+    sampledData = sampledData.loc[
+        sampledData["qcPass"]
+    ].copy()
+
+
+# ------------------------------------------------------------
+# 9. Verify that every sampled trap has an abundance estimate
+# ------------------------------------------------------------
+
+missingAbundance = sampledData["estimatedCount"].isna()
+
+if missingAbundance.any():
+    missingRows = sampledData.loc[
+        missingAbundance,
+        [
+            "eventID",
+            "plotID",
+            "sampleID",
+            "targetTaxaPresent"
+        ]
+    ]
+
+    raise ValueError(
+        "Some sampled traps have no estimated mosquito count.\n"
+        "Check the sorting/identification data for these samples:\n"
+        + missingRows.to_string(index=False)
+    )
+
+
+# ------------------------------------------------------------
+# 10. Parse dates
+# ------------------------------------------------------------
+
+sampledData["setDate"] = pd.to_datetime(
+    sampledData["setDate"],
+    utc=True
+)
+
+sampledData["collectDate"] = pd.to_datetime(
+    sampledData["collectDate"],
+    utc=True
+)
+
+
+# ------------------------------------------------------------
+# 11. Combine day + night samples for each plot within each event
+# ------------------------------------------------------------
+
+plotEventData = (
+    sampledData
+    .groupby(
+        [
+            "eventID",
+            "plotID"
+        ],
+        as_index=False
+    )
+    .agg(
+        eventStart=("setDate", "min"),
+        estimatedMosquitoes=("estimatedCount", "sum"),
+        totalTrapHours=("trapHours", "sum"),
+        intervalCount=("nightOrDay", "nunique")
+    )
+)
+
+
+# ------------------------------------------------------------
+# 12. Keep only complete plots
+#
+# A complete plot has both:
+#     - one daytime trapping interval
+#     - one nighttime trapping interval
+# ------------------------------------------------------------
+
+completePlotData = plotEventData.loc[
+    plotEventData["intervalCount"] == 2
+].copy()
+
+
+# ------------------------------------------------------------
+# 13. Normalize each plot to 24 trap-hours
+# ------------------------------------------------------------
+
+completePlotData["abundance24hPlot"] = (
+    completePlotData["estimatedMosquitoes"]
+    / completePlotData["totalTrapHours"]
+    * 24
+)
+
+
+# ------------------------------------------------------------
+# 14. Calculate site-level abundance for each sampling event
+# ------------------------------------------------------------
+
+summaryData = (
+    completePlotData
+    .groupby(
+        "eventID",
+        as_index=False
+    )
+    .agg(
+        eventStart=("eventStart", "min"),
+        completePlots=("plotID", "nunique"),
+        abundance24h=("abundance24hPlot", "mean")
+    )
+)
+
+
+# ------------------------------------------------------------
+# 15. Format the output table
+# ------------------------------------------------------------
+
+summaryData["eventStart"] = (
+    summaryData["eventStart"]
+    .dt.date
+)
+
+summaryData["abundance24h"] = (
+    summaryData["abundance24h"]
+    .round(1)
+)
+
+summaryData = (
+    summaryData
+    .sort_values("eventStart")
+    .reset_index(drop=True)
+)
+
+
+# ------------------------------------------------------------
+# 16. Display and save
+# ------------------------------------------------------------
+
+print(
+    summaryData.to_string(index=False)
+)
+
+summaryData.to_csv(OUTPUT_DIR / "mos-abundance-by-event.csv",
+                   index=False)
