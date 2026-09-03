@@ -12,35 +12,19 @@ OUTPUT_DIR = PRJ_DIR / "output"
 excludeQcIssues = False
 
 
-# Helper function: read and combine all monthly files of a type
+# Helper function to read and combine all monthly files that match a given pattern.
 #
 def readNeonFiles(pattern):
     files = sorted(DATA_DIR.glob(pattern))
     if not files: raise FileNotFoundError(f"No files found matching: {pattern}")
 
-    data = pd.concat(
-        [pd.read_csv(file) for file in files],
-        ignore_index=True
-    )
-
+    data = pd.concat( [pd.read_csv(file) for file in files],
+                      ignore_index=True )
     return data
 
-
-# ------------------------------------------------------------
-# 1. Read required NEON tables
-# ------------------------------------------------------------
-
-trappingData = readNeonFiles(
-    "*mos_trapping*.csv"
-)
-
-sortingData = readNeonFiles(
-    "*mos_sorting*.csv"
-)
-
-identificationData = readNeonFiles(
-    "*mos_expertTaxonomistIDProcessed*.csv"
-)
+trappingData       = readNeonFiles( "*mos_trapping*.csv" )
+sortingData        = readNeonFiles( "*mos_sorting*.csv" )
+identificationData = readNeonFiles( "*mos_expertTaxonomistIDProcessed*.csv" )
 
 
 # ------------------------------------------------------------
