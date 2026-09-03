@@ -22,29 +22,14 @@ def readNeonFiles(pattern):
                       ignore_index=True )
     return data
 
-trappingData       = readNeonFiles( "*mos_trapping*.csv" )
-sortingData        = readNeonFiles( "*mos_sorting*.csv" )
-identificationData = readNeonFiles( "*mos_expertTaxonomistIDProcessed*.csv" )
+trappingData  = readNeonFiles( "*mos_trapping*.csv" )
+sortingData   = readNeonFiles( "*mos_sorting*.csv" )
+idData        = readNeonFiles( "*mos_expertTaxonomistIDProcessed*.csv" )
 
-
-# ------------------------------------------------------------
-# 2. Remove duplicate records, if any
-# ------------------------------------------------------------
-
-if "uid" in trappingData.columns:
-    trappingData = trappingData.drop_duplicates(
-        subset="uid"
-    )
-
-if "uid" in sortingData.columns:
-    sortingData = sortingData.drop_duplicates(
-        subset="uid"
-    )
-
-if "uid" in identificationData.columns:
-    identificationData = identificationData.drop_duplicates(
-        subset="uid"
-    )
+# Remove duplicate records, if any
+if "uid" in trappingData.columns: trappingData = trappingData.drop_duplicates(subset="uid")
+if "uid" in sortingData.columns:  sortingData = sortingData.drop_duplicates(subset="uid")
+if "uid" in idData.columns:       idData = idData.drop_duplicates(subset="uid")
 
 
 # ------------------------------------------------------------
@@ -55,7 +40,7 @@ if "uid" in identificationData.columns:
 # ------------------------------------------------------------
 
 identifiedCounts = (
-    identificationData
+    idData
     .groupby("subsampleID", as_index=False)
     .agg(
         identifiedCount=("individualCount", "sum")
