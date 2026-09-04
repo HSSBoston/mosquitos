@@ -157,24 +157,12 @@ completePlotData["abundance24hPlot"] = (
     completePlotData["estimatedMosquitoes"] / completePlotData["totalTrapHours"] * 24 )
 
 # Calculate site-level abundance for each sampling event
-summaryData = (
-    completePlotData
-    .groupby(
-        "eventID",
-        as_index=False
-    )
-    .agg(
-        eventStart=("eventStart", "min"),
-        completePlots=("plotID", "nunique"),
-        abundance24h=("abundance24hPlot", "mean")
-    )
-)
+summaryData = completePlotData.groupby("eventID", as_index=False).agg(
+    eventStart    =("eventStart", "min"),
+    completePlots =("plotID", "nunique"),
+    abundance24h  =("abundance24hPlot", "mean") )
 
-
-# ------------------------------------------------------------
-# 15. Format the output table
-# ------------------------------------------------------------
-
+# Format the output table
 summaryData["eventStart"] = (
     summaryData["eventStart"]
     .dt.date
