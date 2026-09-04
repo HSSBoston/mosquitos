@@ -32,21 +32,16 @@ if "uid" in sortingData.columns:  sortingData = sortingData.drop_duplicates(subs
 if "uid" in idData.columns:       idData = idData.drop_duplicates(subset="uid")
 
 
-# ------------------------------------------------------------
-# 3. Sum identified mosquitoes within each subsample
-#
-# One subsample can have multiple rows because mosquitoes are
-# separated by scientificName, sex, etc.
-# ------------------------------------------------------------
-
-identifiedCounts = (
-    idData
-    .groupby("subsampleID", as_index=False)
-    .agg(
+# Sum up identified mosquitoes within each subsample.
+# One subsample can have multiple rows because mosquitoes are separated by
+# scientificName, sex, etc. in idData. Generates a DataFrame that shows the
+# total nubmer of identified mosquitos per subsampleID; for example:
+#    subsampleID  identifiedCount
+#  0          S1               55
+#  1          S2               15
+identifiedCounts = idData.groupby("subsampleID").agg(
         identifiedCount=("individualCount", "sum")
-    )
-)
-
+    ).reset_index()
 
 # ------------------------------------------------------------
 # 4. Attach proportionIdentified
