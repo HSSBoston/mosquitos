@@ -120,7 +120,6 @@ if EXCLUDE_QC_ISSUES:
     sampledData = sampledData.loc[
         sampledData["qcPass"]==True].copy()
 
-
 # Verify that every sampled trap has an abundance estimate
 missingAbundance = sampledData["estimatedCount"].isna()
 
@@ -137,33 +136,20 @@ if missingAbundance.any():
 sampledData["setDate"]     = pd.to_datetime(sampledData["setDate"],     utc=True)
 sampledData["collectDate"] = pd.to_datetime(sampledData["collectDate"], utc=True)
 
-# Combine day + night samples for each plot within each event
-plotEventData = (
-    sampledData
-    .groupby(
-        [
-            "eventID",
-            "plotID"
-        ],
-        as_index=False
-    )
-    .agg(
-        eventStart=("setDate", "min"),
-        estimatedMosquitoes=("estimatedCount", "sum"),
-        totalTrapHours=("trapHours", "sum"),
-        intervalCount=("nightOrDay", "nunique")
-    )
-)
+# Combine day + night samples for each plot within each event.
+# Example output:
+#     eventID  plotID  eventStart estimatedMosquitoes totalTrapHours intervalCount 
+#  0  HARV...  HARV...      
+#  1  HARV...  HARV...      
+plotEventData = sampledData.groupby(["eventID","plotID"], as_index=False).agg(
+    eventStart          =("setDate", "min"),
+    estimatedMosquitoes =("estimatedCount", "sum"),
+    totalTrapHours      =("trapHours", "sum"),
+    intervalCount       =("nightOrDay", "nunique") )
 
-
-# ------------------------------------------------------------
-# 12. Keep only complete plots
-#
-# A complete plot has both:
-#     - one daytime trapping interval
-#     - one nighttime trapping interval
-# ------------------------------------------------------------
-
+# Keep only complete plots. A complete plot has both:
+#   - one daytime trapping interval
+#   - one nighttime trapping interval
 completePlotData = plotEventData.loc[
     plotEventData["intervalCount"] == 2
 ].copy()
