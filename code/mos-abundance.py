@@ -137,6 +137,17 @@ def getMonthlySummary(path:Path):
         sampledData = sampledData.loc[
             sampledData["qcPass"]==True].copy()
 
+    knownMissingIdentification = (
+        sampledData["estimatedCount"].isna()
+        & sampledData["remarks"].fillna("").str.contains("identification data missing",
+            case=False, regex=False) )
+
+    if knownMissingIdentification.any():
+        print("Excluding records with known missing identification data:")
+        print( sampledData.loc[knownMissingIdentification,
+                               ["eventID", "plotID", "sampleID", "remarks"]].to_string(index=False))
+        sampledData = sampledData.loc[~knownMissingIdentification].copy()
+    
     # Verify that every sampled trap has an abundance estimate
     missingAbundance = sampledData["estimatedCount"].isna()
 
