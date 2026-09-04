@@ -69,55 +69,32 @@ if invalidProportion.any():
 sampleCounts["estimatedCount"] = sampleCounts["identifiedCount"] / sampleCounts["proportionIdentified"]
 
 
-# ------------------------------------------------------------
-# 5. Attach estimated mosquito counts to trapping records
-# ------------------------------------------------------------
-
+# Add estimated mosquito counts to trappingData
 trappingData = trappingData.merge(
-    sampleCounts[
-        [
-            "sampleID",
-            "estimatedCount"
-        ]
-    ],
+    sampleCounts[["sampleID","estimatedCount"]],
     on="sampleID",
-    how="left"
-)
+    how="left")
 
-
-# ------------------------------------------------------------
-# 6. Distinguish true zero catches from unsampled events
-#
-# If a trap was sampled and targetTaxaPresent == "N",
-# mosquito abundance is zero.
-#
+# Distinguish true zero catches from unsampled events. 
+# true zero catch:
+#   → trapping record exists (sampleID existis in trappingData)
+#   → targetTaxaPresent = "N" in trappingData
+#   → no row exist in sortingData
+#   → no proportionIdentified value
+#   → estimatedCount = NaN
 # Unsampled records are not treated as zeros.
-# ------------------------------------------------------------
+zeroCatch = trappingData["sampleID"].notna() &
+            trappingData["targetTaxaPresent"].eq("N")
 
-zeroCatch = (
-    trappingData["sampleID"].notna()
-    & trappingData["targetTaxaPresent"].eq("N")
-)
-
-trappingData.loc[
-    zeroCatch & trappingData["estimatedCount"].isna(),
-    "estimatedCount"
-] = 0
+trappingData.loc[zeroCatch & trappingData["estimatedCount"].isna(),
+                 "estimatedCount"] = 0
 
 
-# ------------------------------------------------------------
-# 7. Keep records where trapping actually occurred
-# ------------------------------------------------------------
-
-trappingData["trapHours"] = pd.to_numeric(
-    trappingData["trapHours"],
-    errors="coerce"
-)
+# Keep records where trapping actually occurred
+trappingData["trapHours"] = pd.to_numeric(trappingData["trapHours"], errors="coerce")
 
 sampledData = trappingData.loc[
-    trappingData["sampleID"].notna()
-    & (trappingData["trapHours"] > 0)
-].copy()
+    trappingData["sampleID"].notna() & (trappingData["trapHours"] > 0) ].copy()
 
 
 # ------------------------------------------------------------
