@@ -43,52 +43,30 @@ identifiedCounts = idData.groupby("subsampleID").agg(
         identifiedCount=("individualCount", "sum")
     ).reset_index()
 
+# Merge two DataFrames: sortingData and identifiedCounts.
+sampleCounts = sortingData[ ["sampleID", "subsampleID", "proportionIdentified"] ].merge(
+    identifiedCounts,
+    on="subsampleID",
+    how="left")
+    # how="left": Keep all rows in the left DF (sortingData) and attach matching info
+    # from the right DF (identifiedCounts)
+
+# Check for invalid proportions.
+invalidProportion = sampleCounts["proportionIdentified"].isna() |
+                    sampleCounts["proportionIdentified"] <= 0 |
+                    sampleCounts["proportionIdentified"] > 1 
+
+if invalidProportion.any():
+    invalidRows = sampleCounts.loc[ invalidProportion,
+                                    ["sampleID","subsampleID","proportionIdentified"]]
+    raise ValueError(
+        "Invalid proportionIdentified values found:\n"
+        + invalidRows.to_string(index=False))
+
 # Estimate the total sample count based on identifiedCount and proportionIdentified
 # columns in sortingData: 
 #   estimatedCount = identifiedCount / proportionIdentified
-sampleCounts = (
-    sortingData[
-        [
-            "sampleID",
-            "subsampleID",
-            "proportionIdentified"
-        ]
-    ]
-    .merge(
-        identifiedCounts,
-        on="subsampleID",
-        how="left"
-    )
-)
-
-
-# Check for invalid proportions.
-invalidProportion = (
-    sampleCounts["proportionIdentified"].isna()
-    | (sampleCounts["proportionIdentified"] <= 0)
-    | (sampleCounts["proportionIdentified"] > 1)
-)
-
-if invalidProportion.any():
-    invalidRows = sampleCounts.loc[
-        invalidProportion,
-        [
-            "sampleID",
-            "subsampleID",
-            "proportionIdentified"
-        ]
-    ]
-
-    raise ValueError(
-        "Invalid proportionIdentified values found:\n"
-        + invalidRows.to_string(index=False)
-    )
-
-
-sampleCounts["estimatedCount"] = (
-    sampleCounts["identifiedCount"]
-    / sampleCounts["proportionIdentified"]
-)
+sampleCounts["estimatedCount"] = sampleCounts["identifiedCount"] / sampleCounts["proportionIdentified"]
 
 
 # ------------------------------------------------------------
