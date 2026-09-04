@@ -52,9 +52,9 @@ sampleCounts = sortingData[ ["sampleID", "subsampleID", "proportionIdentified"] 
     # from the right DF (identifiedCounts)
 
 # Check for invalid proportions.
-invalidProportion = sampleCounts["proportionIdentified"].isna() |
-                    sampleCounts["proportionIdentified"] <= 0 |
-                    sampleCounts["proportionIdentified"] > 1 
+invalidProportion = ( (sampleCounts["proportionIdentified"].isna())
+                    | (sampleCounts["proportionIdentified"] <= 0)
+                    | (sampleCounts["proportionIdentified"] > 1) )
 
 if invalidProportion.any():
     invalidRows = sampleCounts.loc[ invalidProportion,
@@ -83,8 +83,8 @@ trappingData = trappingData.merge(
 #   → no proportionIdentified value
 #   → estimatedCount = NaN
 # Unsampled records are not treated as zeros.
-zeroCatch = trappingData["sampleID"].notna() &
-            trappingData["targetTaxaPresent"].eq("N")
+zeroCatch = (trappingData["sampleID"].notna() &
+             trappingData["targetTaxaPresent"].eq("N") )
 
 trappingData.loc[zeroCatch & trappingData["estimatedCount"].isna(),
                  "estimatedCount"] = 0
@@ -102,7 +102,7 @@ sampledData["qcPass"] = True
 def requireValue(columnName, acceptableValue):
     if columnName not in sampledData.columns: return
     sampledData.loc[
-        sampledData[columnName].notna() & ~sampledData[columnName].eq(acceptableValue)
+        sampledData[columnName].notna() & ~sampledData[columnName].eq(acceptableValue),
         "qcPass"] = False
 
 requireValue("samplingImpractical", "OK")
