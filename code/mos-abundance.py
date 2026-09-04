@@ -187,12 +187,32 @@ def getMonthlySummary(path:Path):
     return summaryData
 
 
+def getSummary(path:Path):
+    if not path.is_dir(): raise NotADirectoryError(f"Data directory not found: {path}")
+    
+    directories = sorted(
+        directory for directory in path.glob("NEON.D01.HARV.DP1.10043.001.*")
+        if directory.is_dir())
+    
+    if not directories: raise FileNotFoundError(f"No NEON monthly directories found in: {path}")
+    
+    summaries = [getMonthlySummary(directory) for directory in directories]
+    print( f"{len(summaries)}-month data were inspected.")
+    
+    return pd.concat(summaries, ignore_index=True).sort_values("eventStart").reset_index(drop=True)
+
 
 if __name__ == "__main__":
 #     targetDir = DATA_DIR / "NEON.D01.HARV.DP1.10043.001.2024-07.expanded.20260123T000749Z.RELEASE-2026"
-    targetDir = DATA_DIR / "NEON.D01.HARV.DP1.10043.001.2018-04.expanded.20260123T000749Z.RELEASE-2026"
+#     targetDir = DATA_DIR / "NEON.D01.HARV.DP1.10043.001.2018-04.expanded.20260123T000749Z.RELEASE-2026"
+    targetDir = DATA_DIR / "NEON.D01.HARV.DP1.10043.001.2018-05.expanded.20260123T000749Z.RELEASE-2026"
     
     summaryDf = getMonthlySummary(targetDir)
-
     print( summaryDf.to_string(index=False) )
-    summaryDf.to_csv(OUTPUT_DIR / "mos-abundance-by-event.csv", index=False)
+    summaryDf.to_csv(OUTPUT_DIR / "mos-abundance-by-event-single-mo.csv", index=False)
+    
+    combinedDf = getSummary(DATA_DIR)
+    print( combinedDf.to_string(index=False) )
+    combinedDf.to_csv(OUTPUT_DIR / "mos-abundance-by-event-multiple-mo.csv", index=False)
+    
+    
