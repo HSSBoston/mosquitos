@@ -15,7 +15,7 @@ EXCLUDE_QC_ISSUES = False
 # Helper function to read and combine all monthly files that match a given pattern.
 #
 def readNeonFiles(path: Path, pattern: str):
-    files = sorted(path.glob(pattern))
+    files = list(path.glob(pattern))
     if not files: raise FileNotFoundError(f"No files found matching: {pattern}")
 
     data = pd.concat( [pd.read_csv(file) for file in files],
@@ -170,8 +170,12 @@ def getMonthlySummary(path:Path):
     
     return summaryData
 
+
+
 if __name__ == "__main__":
-    targetDir = DATA_DIR / "NEON.D01.HARV.DP1.10043.001.2024-07.expanded.20260123T000749Z.RELEASE-2026"
+#     targetDir = DATA_DIR / "NEON.D01.HARV.DP1.10043.001.2024-07.expanded.20260123T000749Z.RELEASE-2026"
+    targetDir = DATA_DIR / "NEON.D01.HARV.DP1.10043.001.2018-04.expanded.20260123T000749Z.RELEASE-2026"
+    
     summaryDf = getMonthlySummary(targetDir)
 
     print( summaryDf.to_string(index=False) )
