@@ -163,23 +163,9 @@ summaryData = completePlotData.groupby("eventID", as_index=False).agg(
     abundance24h  =("abundance24hPlot", "mean") )
 
 # Format the output table
-summaryData["eventStart"] = (
-    summaryData["eventStart"]
-    .dt.date
-)
-
-summaryData["abundance24h"] = (
-    summaryData["abundance24h"]
-    .round(1)
-)
-
-summaryData = (
-    summaryData
-    .sort_values("eventStart")
-    .reset_index(drop=True)
-)
-
+summaryData["eventStart"]   = summaryData["eventStart"].dt.date
+summaryData["abundance24h"] = summaryData["abundance24h"].round(1)
+summaryData = summaryData.sort_values("eventStart").reset_index(drop=True)
 
 print( summaryData.to_string(index=False) )
-summaryData.to_csv(OUTPUT_DIR / "mos-abundance-by-event.csv",
-                   index=False)
+summaryData.to_csv(OUTPUT_DIR / "mos-abundance-by-event.csv", index=False)
