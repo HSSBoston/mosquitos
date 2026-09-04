@@ -14,88 +14,104 @@ EXCLUDE_QC_ISSUES = False
 
 # Helper function to read and combine all monthly files that match a given pattern.
 #
-def readNeonFiles(path: Path, pattern: str):
-    files = list(path.glob(pattern))
-    if not files: raise FileNotFoundError(f"No files found matching: {pattern}")
+def readNeonFile(path: Path, pattern: str, *, required: bool):
+    if not path.is_dir(): raise NotADirectoryError(f"Data directory not found: {path}")
 
-    data = pd.concat( [pd.read_csv(file) for file in files],
-                      ignore_index=True )
-    return data
+    files = [file for file in path.glob(pattern) if file.is_file()]
+    if len(files) == 0:
+        if required:
+            raise FileNotFoundError(f"No file found matching: {path / pattern}")
+        return None
+    if len(files) > 1:
+        raise RuntimeError(f"Expected one file matching {path / pattern}, but found {len(files)}")
+
+    return pd.read_csv(files[0])
 
 def getMonthlySummary(path:Path):
-    trappingData  = readNeonFiles(path, "*mos_trapping*.csv")
-    sortingData   = readNeonFiles(path, "*mos_sorting*.csv")
-    idData        = readNeonFiles(path, "*mos_expertTaxonomistIDProcessed*.csv")
+    trappingData  = readNeonFile(path, "*mos_trapping*.csv", required=True)
+    sortingData   = readNeonFile(path, "*mos_sorting*.csv",  required=False)
+    idData        = readNeonFile(path, "*mos_expertTaxonomistIDProcessed*.csv", required=False)
 
     # Remove duplicate records, if any
     if "uid" in trappingData.columns: trappingData = trappingData.drop_duplicates(subset="uid")
-    if "uid" in sortingData.columns:  sortingData = sortingData.drop_duplicates(subset="uid")
-    if "uid" in idData.columns:       idData = idData.drop_duplicates(subset="uid")
+    
+    if sortingData is not None and "uid" in sortingData.columns:
+        sortingData = sortingData.drop_duplicates(subset="uid")
+    if idData is not None and "uid" in idData.columns:
+        idData = idData.drop_duplicates(subset="uid")
 
-
-    # Sum up identified mosquitoes within each subsample.
-    # One subsample can have multiple rows because mosquitoes are separated by
-    # scientificName, sex, etc. in idData. Generates a DataFrame that shows the
-    # total nubmer of identified mosquitos per subsampleID; for example:
-    #    subsampleID  identifiedCount
-    #  0          S1               55
-    #  1          S2               15
-    identifiedCounts = idData.groupby("subsampleID").agg(
-            identifiedCount=("individualCount", "sum")
-        ).reset_index()
-
-    # Merge two DataFrames: sortingData and identifiedCounts.
-    sampleCounts = sortingData[ ["sampleID", "subsampleID", "proportionIdentified"] ].merge(
-        identifiedCounts,
-        on="subsampleID",
-        how="left")
-        # how="left": Keep all rows in the left DF (sortingData) and attach matching info
-        # from the right DF (identifiedCounts)
-
-    # Check for invalid proportions.
-    invalidProportion = ( (sampleCounts["proportionIdentified"].isna())
-                        | (sampleCounts["proportionIdentified"] <= 0)
-                        | (sampleCounts["proportionIdentified"] > 1) )
-
-    if invalidProportion.any():
-        invalidRows = sampleCounts.loc[ invalidProportion,
-                                        ["sampleID","subsampleID","proportionIdentified"]]
-        raise ValueError(
-            "Invalid proportionIdentified values found:\n"
-            + invalidRows.to_string(index=False))
-
-    # Estimate the total sample count based on identifiedCount and proportionIdentified
-    # columns in sortingData: 
-    #   estimatedCount = identifiedCount / proportionIdentified
-    sampleCounts["estimatedCount"] = sampleCounts["identifiedCount"] / sampleCounts["proportionIdentified"]
-
-
-    # Add estimated mosquito counts to trappingData
-    trappingData = trappingData.merge(
-        sampleCounts[["sampleID","estimatedCount"]],
-        on="sampleID",
-        how="left")
-
-    # Distinguish true zero catches from unsampled events. 
-    # true zero catch:
-    #   → trapping record exists (sampleID existis in trappingData)
-    #   → targetTaxaPresent = "N" in trappingData
-    #   → no row exist in sortingData
-    #   → no proportionIdentified value
-    #   → estimatedCount = NaN
-    # Unsampled records are not treated as zeros.
-    zeroCatch = (trappingData["sampleID"].notna() &
-                 trappingData["targetTaxaPresent"].eq("N") )
-
-    trappingData.loc[zeroCatch & trappingData["estimatedCount"].isna(),
-                     "estimatedCount"] = 0
-
-    # Keep records where trapping actually occurred
     trappingData["trapHours"] = pd.to_numeric(trappingData["trapHours"], errors="coerce")
+    positiveCatch = trappingData["targetTaxaPresent"].eq("Y")
 
+    if sortingData is None:
+        # idData cannot be interpreted without its parent sorting table (sortingData).
+        if idData is not None: raise ValueError("ID data exist, but sorting data are missing.")
+        # sortingData is missing when positive catch exists.
+        if positiveCatch.any():
+            affectedRows = trappingData.loc[
+                positiveCatch,
+                ["eventID", "plotID", "sampleID", "targetTaxaPresent"] ]
+            raise ValueError("Some traps contained mosquitoes, but no sorting file was found:\n"
+                             + affectedRows.to_string(index=False) )
+
+        trappingData["estimatedCount"] = np.nan
+
+    else:
+        if idData is None: raise FileNotFoundError("Sorting data exist, but the ID is missing.")
+
+        # Sum up identified mosquitoes within each subsample.
+        # One subsample can have multiple rows because mosquitoes are separated by
+        # scientificName, sex, etc. in idData. Generates a DataFrame that shows the
+        # total nubmer of identified mosquitos per subsampleID; for example:
+        #    subsampleID  identifiedCount
+        #  0          S1               55
+        #  1          S2               15
+        identifiedCounts = idData.groupby("subsampleID").agg(
+                identifiedCount=("individualCount", "sum")
+            ).reset_index()
+
+        # Merge two DataFrames: sortingData and identifiedCounts.
+        sampleCounts = sortingData[ ["sampleID", "subsampleID", "proportionIdentified"] ].merge(
+            identifiedCounts,
+            on="subsampleID",
+            how="left")
+            # how="left": Keep all rows in the left DF (sortingData) and attach matching info
+            # from the right DF (identifiedCounts)
+
+        # Check for invalid proportions.
+        invalidProportion = ( (sampleCounts["proportionIdentified"].isna())
+                            | (sampleCounts["proportionIdentified"] <= 0)
+                            | (sampleCounts["proportionIdentified"] > 1) )
+
+        if invalidProportion.any():
+            invalidRows = sampleCounts.loc[ invalidProportion,
+                                            ["sampleID","subsampleID","proportionIdentified"]]
+            raise ValueError(
+                "Invalid proportionIdentified values found:\n"
+                + invalidRows.to_string(index=False))
+
+        # Estimate the total sample count based on identifiedCount and proportionIdentified
+        # columns in sortingData: 
+        #   estimatedCount = identifiedCount / proportionIdentified
+        sampleCounts["estimatedCount"] = (
+            sampleCounts["identifiedCount"] / sampleCounts["proportionIdentified"] )
+
+        # Add estimated mosquito counts to trappingData
+        trappingData = trappingData.merge(
+            sampleCounts[["sampleID","estimatedCount"]],
+            on="sampleID",
+            how="left")
+
+    # targetTaxaPresent == N is the zero-catch indicator.
+    trappingData.loc[
+        trappingData["targetTaxaPresent"].eq("N"),
+        "estimatedCount"] = 0
+
+    # Positive trapHours indicates that the trap actually operated.
+    # Do not require sampleID: valid zero catches may not have one.
     sampledData = trappingData.loc[
-        trappingData["sampleID"].notna() & (trappingData["trapHours"] > 0) ].copy()
-
+        trappingData["trapHours"] > 0
+    ].copy()
 
     # Basic quality control flag
     sampledData["qcPass"] = True
