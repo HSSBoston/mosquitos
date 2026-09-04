@@ -136,7 +136,8 @@ def getMonthlySummary(path:Path):
     if EXCLUDE_QC_ISSUES:
         sampledData = sampledData.loc[
             sampledData["qcPass"]==True].copy()
-
+    
+    # If the remark column says "identification data missing", exclude that data. 
     knownMissingIdentification = (
         sampledData["estimatedCount"].isna()
         & sampledData["remarks"].fillna("").str.contains("identification data missing",
