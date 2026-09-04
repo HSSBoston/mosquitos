@@ -153,21 +153,42 @@ def getMonthlySummary(path:Path):
     sampledData["setDate"]     = pd.to_datetime(sampledData["setDate"],     utc=True)
     sampledData["collectDate"] = pd.to_datetime(sampledData["collectDate"], utc=True)
 
+    sampledData["isDay"]   = sampledData["nightOrDay"].eq("day")
+    sampledData["isNight"] = sampledData["nightOrDay"].eq("night")
+
     # Combine day + night samples for each plot within each event.
     # Example output:
-    #     eventID  plotID  eventStart estimatedMosquitoes totalTrapHours intervalCount 
+    #     eventID  plotID  eventStart estimatedMosquitoes totalTrapHours dayCount nightCount 
     #  0  HARV...  HARV...      
     #  1  HARV...  HARV...      
     plotEventData = sampledData.groupby(["eventID","plotID"], as_index=False).agg(
         eventStart          =("setDate", "min"),
         estimatedMosquitoes =("estimatedCount", "sum"),
         totalTrapHours      =("trapHours", "sum"),
-        intervalCount       =("nightOrDay", "nunique") )
+        dayCount=("isDay", "sum"),
+        nightCount=("isNight", "sum") )
 
-    # Keep only complete plots. A complete plot has both:
+    # Keep only complete plots. In 2018 and after, a complete plot has both:
     #   - one daytime trapping interval
     #   - one nighttime trapping interval
-    completePlotData = plotEventData.loc[ plotEventData["intervalCount"]==2 ].copy()
+    # In 2017 and before, a complete plot has both:
+    #   - one daytime trapping interval
+    #   - two nighttime trapping interval
+    pre2018 = plotEventData["eventStart"].dt.year < 2018
+    completePlot = (
+        # Before 2018: one day and two nights
+        (pre2018
+         & plotEventData["dayCount"].eq(1)
+         & plotEventData["nightCount"].eq(2)
+        )
+        |
+        # Beginning in 2018: one day and one night
+        (~pre2018
+         & plotEventData["dayCount"].eq(1)
+         & plotEventData["nightCount"].eq(1)
+        )
+    )
+    completePlotData = plotEventData.loc[completePlot].copy()
 
     # Normalize each plot to 24 trap-hours
     completePlotData["abundance24hPlot"] = (
