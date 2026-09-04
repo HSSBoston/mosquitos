@@ -154,16 +154,9 @@ completePlotData = plotEventData.loc[ plotEventData["intervalCount"]==2 ].copy()
 
 # Normalize each plot to 24 trap-hours
 completePlotData["abundance24hPlot"] = (
-    completePlotData["estimatedMosquitoes"]
-    / completePlotData["totalTrapHours"]
-    * 24
-)
+    completePlotData["estimatedMosquitoes"] / completePlotData["totalTrapHours"] * 24 )
 
-
-# ------------------------------------------------------------
-# 14. Calculate site-level abundance for each sampling event
-# ------------------------------------------------------------
-
+# Calculate site-level abundance for each sampling event
 summaryData = (
     completePlotData
     .groupby(
