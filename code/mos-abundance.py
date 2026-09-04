@@ -9,7 +9,7 @@ OUTPUT_DIR = PRJ_DIR / "output"
 #
 # True:
 #   Exclude traps with obvious equipment/sample problems.
-excludeQcIssues = False
+EXCLUDE_QC_ISSUES = False
 
 
 # Helper function to read and combine all monthly files that match a given pattern.
@@ -89,7 +89,6 @@ zeroCatch = trappingData["sampleID"].notna() &
 trappingData.loc[zeroCatch & trappingData["estimatedCount"].isna(),
                  "estimatedCount"] = 0
 
-
 # Keep records where trapping actually occurred
 trappingData["trapHours"] = pd.to_numeric(trappingData["trapHours"], errors="coerce")
 
@@ -97,110 +96,48 @@ sampledData = trappingData.loc[
     trappingData["sampleID"].notna() & (trappingData["trapHours"] > 0) ].copy()
 
 
-# ------------------------------------------------------------
-# 8. Basic quality-control flag
-# ------------------------------------------------------------
-
+# Basic quality control flag
 sampledData["qcPass"] = True
 
-
 def requireValue(columnName, acceptableValue):
-    if columnName not in sampledData.columns:
-        return
-
-    failedQc = (
-        sampledData[columnName].notna()
-        & ~sampledData[columnName].eq(acceptableValue)
-    )
-
+    if columnName not in sampledData.columns: return
     sampledData.loc[
-        failedQc,
-        "qcPass"
-    ] = False
+        sampledData[columnName].notna() & ~sampledData[columnName].eq(acceptableValue)
+        "qcPass"] = False
 
-
-requireValue(
-    "samplingImpractical",
-    "OK"
-)
-
-requireValue(
-    "fanStatus",
-    "On"
-)
-
-requireValue(
-    "catchCupStatus",
-    "OK"
-)
-
-requireValue(
-    "sampleCondition",
-    "No known compromise"
-)
-
-requireValue(
-    "CO2Status",
-    "Present"
-)
-
+requireValue("samplingImpractical", "OK")
+requireValue("fanStatus",           "On")
+requireValue("catchCupStatus",      "OK")
+requireValue("sampleCondition",     "No known compromise")
+requireValue("CO2Status",           "Present")
 
 if "dataQF" in sampledData.columns:
     sampledData.loc[
         sampledData["dataQF"].notna(),
-        "qcPass"
-    ] = False
+        "qcPass"] = False
 
-
-if excludeQcIssues:
+if EXCLUDE_QC_ISSUES:
     sampledData = sampledData.loc[
-        sampledData["qcPass"]
-    ].copy()
+        sampledData["qcPass"]==True].copy()
 
 
-# ------------------------------------------------------------
-# 9. Verify that every sampled trap has an abundance estimate
-# ------------------------------------------------------------
-
+# Verify that every sampled trap has an abundance estimate
 missingAbundance = sampledData["estimatedCount"].isna()
 
 if missingAbundance.any():
     missingRows = sampledData.loc[
         missingAbundance,
-        [
-            "eventID",
-            "plotID",
-            "sampleID",
-            "targetTaxaPresent"
-        ]
-    ]
-
+        ["eventID", "plotID", "sampleID", "targetTaxaPresent"] ]
     raise ValueError(
         "Some sampled traps have no estimated mosquito count.\n"
         "Check the sorting/identification data for these samples:\n"
-        + missingRows.to_string(index=False)
-    )
+        + missingRows.to_string(index=False) )
 
+# Parse dates
+sampledData["setDate"]     = pd.to_datetime(sampledData["setDate"],     utc=True)
+sampledData["collectDate"] = pd.to_datetime(sampledData["collectDate"], utc=True)
 
-# ------------------------------------------------------------
-# 10. Parse dates
-# ------------------------------------------------------------
-
-sampledData["setDate"] = pd.to_datetime(
-    sampledData["setDate"],
-    utc=True
-)
-
-sampledData["collectDate"] = pd.to_datetime(
-    sampledData["collectDate"],
-    utc=True
-)
-
-
-# ------------------------------------------------------------
-# 11. Combine day + night samples for each plot within each event
-# ------------------------------------------------------------
-
+# Combine day + night samples for each plot within each event
 plotEventData = (
     sampledData
     .groupby(
