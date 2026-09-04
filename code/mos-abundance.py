@@ -2,6 +2,7 @@ from pathlib import Path
 import numpy as np, pandas as pd
 
 PRJ_DIR    = Path(__file__).parent
+DATA_DIR   = PRJ_DIR / "data" / "NEON_count-mosquitoes"
 OUTPUT_DIR = PRJ_DIR / "output"
 
 # False: Keep sampled traps even if a potential QC issue is present.
@@ -21,7 +22,7 @@ def readNeonFiles(path: Path, pattern: str):
                       ignore_index=True )
     return data
 
-def generateMonthlySummary(path:Path):
+def getMonthlySummary(path:Path):
     trappingData  = readNeonFiles(path, "*mos_trapping*.csv")
     sortingData   = readNeonFiles(path, "*mos_sorting*.csv")
     idData        = readNeonFiles(path, "*mos_expertTaxonomistIDProcessed*.csv")
@@ -170,8 +171,8 @@ def generateMonthlySummary(path:Path):
     return summaryData
 
 if __name__ == "__main__":
-    targetDir = PRJ_DIR / "data" / "NEON_count-mosquitoes" / "NEON.D01.HARV.DP1.10043.001.2024-07.expanded.20260123T000749Z.RELEASE-2026"
-    summaryDf = generateMonthlySummary(targetDir)
+    targetDir = DATA_DIR / "NEON.D01.HARV.DP1.10043.001.2024-07.expanded.20260123T000749Z.RELEASE-2026"
+    summaryDf = getMonthlySummary(targetDir)
 
     print( summaryDf.to_string(index=False) )
     summaryDf.to_csv(OUTPUT_DIR / "mos-abundance-by-event.csv", index=False)
