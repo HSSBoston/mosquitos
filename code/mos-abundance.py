@@ -43,13 +43,9 @@ identifiedCounts = idData.groupby("subsampleID").agg(
         identifiedCount=("individualCount", "sum")
     ).reset_index()
 
-# ------------------------------------------------------------
-# 4. Attach proportionIdentified
-#
-# estimatedCount =
-#     identifiedCount / proportionIdentified
-# ------------------------------------------------------------
-
+# Estimate the total sample count based on identifiedCount and proportionIdentified
+# columns in sortingData: 
+#   estimatedCount = identifiedCount / proportionIdentified
 sampleCounts = (
     sortingData[
         [
@@ -331,13 +327,6 @@ summaryData = (
 )
 
 
-# ------------------------------------------------------------
-# 16. Display and save
-# ------------------------------------------------------------
-
-print(
-    summaryData.to_string(index=False)
-)
-
+print( summaryData.to_string(index=False) )
 summaryData.to_csv(OUTPUT_DIR / "mos-abundance-by-event.csv",
                    index=False)
