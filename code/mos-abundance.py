@@ -150,15 +150,9 @@ plotEventData = sampledData.groupby(["eventID","plotID"], as_index=False).agg(
 # Keep only complete plots. A complete plot has both:
 #   - one daytime trapping interval
 #   - one nighttime trapping interval
-completePlotData = plotEventData.loc[
-    plotEventData["intervalCount"] == 2
-].copy()
+completePlotData = plotEventData.loc[ plotEventData["intervalCount"]==2 ].copy()
 
-
-# ------------------------------------------------------------
-# 13. Normalize each plot to 24 trap-hours
-# ------------------------------------------------------------
-
+# Normalize each plot to 24 trap-hours
 completePlotData["abundance24hPlot"] = (
     completePlotData["estimatedMosquitoes"]
     / completePlotData["totalTrapHours"]
