@@ -178,4 +178,4 @@ if __name__ == "__main__":
     summaryDf = getMonthlySummary(targetDir)
 
     print( summaryDf.to_string(index=False) )
-    summaryDf.to_csv(OUTPUT_DIR / "mos-abundance-by-event.csv", index=False)
+    summaryDf.to_csv(OUTPUT_DIR / "neon-mos-abundance-by-event.csv", index=False)
