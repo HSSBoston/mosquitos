@@ -1,5 +1,6 @@
 # HARV soil-array sensor: HOR.VER = 003.000, recorded height = 0.65 m.
 # Select only 30-minute data; each CSV contains both RH and air temperature.
+# January 2016 to December 2024
 
 from pathlib import Path
 import pandas as pd
