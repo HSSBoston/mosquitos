@@ -8,6 +8,8 @@ PRJ_DIR    = Path(__file__).parent
 DATA_DIR   = PRJ_DIR / "data" / "NEON_rel-humidity"
 OUTPUT_DIR = PRJ_DIR / "output"
 
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
 # False: Include nonmissing readings even if a potential QC issue is present.
 # True:  Use only readings with a passing quality flag, separately for RH and temperature.
 EXCLUDE_QC_ISSUES = True
@@ -94,11 +96,29 @@ def getDailySummary(path:Path):
                                     "tempCoverage": 1, "rhCoverage": 1})
     return summaryData
 
+
+def getSummary(path:Path):
+    if not path.is_dir(): raise NotADirectoryError(f"Data directory not found: {path}")
+    
+    directories = sorted(
+        directory for directory in path.glob("NEON.D01.HARV.DP1.00098.001.*")
+        if directory.is_dir())
+    
+    if not directories: raise FileNotFoundError(f"No NEON monthly directories found in: {path}")
+    
+    summaries = [getDailySummary(directory) for directory in directories]
+    print( f"{len(summaries)}-month data were inspected.")
+    
+    return pd.concat(summaries, ignore_index=True).sort_values("date").reset_index(drop=True)
+
+
 if __name__ == "__main__":
     targetDir = DATA_DIR / "NEON.D01.HARV.DP1.00098.001.2024-07.expanded.20260123T000749Z.RELEASE-2026"
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     summaryDf = getDailySummary(targetDir)
-
     print( summaryDf.to_string(index=False) )
     summaryDf.to_csv(OUTPUT_DIR / "neon-rel-humidity-by-day.csv", index=False)
+
+    combinedDf = getSummary(DATA_DIR)
+    print( combinedDf.to_string(index=False) )
+    combinedDf.to_csv(OUTPUT_DIR / "neon-rel-humidity-by-day-multiple-mo.csv", index=False)

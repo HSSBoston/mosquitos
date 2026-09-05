@@ -5,6 +5,8 @@ PRJ_DIR    = Path(__file__).parent
 DATA_DIR   = PRJ_DIR / "data" / "NEON_count-mosquitoes"
 OUTPUT_DIR = PRJ_DIR / "output"
 
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
 # False: Keep sampled traps even if a potential QC issue is present.
 #
 # True:
@@ -242,7 +244,7 @@ if __name__ == "__main__":
     
     summaryDf = getMonthlySummary(targetDir)
     print( summaryDf.to_string(index=False) )
-    summaryDf.to_csv(OUTPUT_DIR / "mos-abundance-by-event-single-mo.csv", index=False)
+    summaryDf.to_csv(OUTPUT_DIR / "neon-mos-abundance-by-event-single-mo.csv", index=False)
     
     combinedDf = getSummary(DATA_DIR)
     print( combinedDf.to_string(index=False) )
