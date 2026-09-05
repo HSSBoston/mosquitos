@@ -1,3 +1,6 @@
+# HARV soil-array sensor: HOR.VER = 003.000, recorded height = 0.65 m.
+# Select only 30-minute data; each CSV contains both RH and air temperature.
+
 from pathlib import Path
 import pandas as pd
 
@@ -25,8 +28,6 @@ def readNeonFiles(path: Path, pattern: str):
 
 
 def getDailySummary(path:Path):
-    # HARV soil-array sensor: HOR.VER = 003.000, recorded height = 0.65 m.
-    # Select only 30-minute data; each CSV contains both RH and air temperature.
     weatherData = readNeonFiles(
         path, "NEON.D01.HARV.DP1.00098.001.003.000.030.RH_30min.*.csv")
 
