@@ -247,5 +247,3 @@ if __name__ == "__main__":
     combinedDf = getSummary(DATA_DIR)
     print( combinedDf.to_string(index=False) )
     combinedDf.to_csv(OUTPUT_DIR / "mos-abundance-by-event-multiple-mo.csv", index=False)
-    
-    
