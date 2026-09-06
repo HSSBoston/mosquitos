@@ -57,9 +57,7 @@ def getDailySummary(path: Path):
         precipData.loc[~qcPass, "precipBulk"] = float("nan")
 
     # Each input row already represents total precipitation over one day.
-    summaryData = precipData.loc[
-        :, ["date", "precipBulk"]
-    ].copy()
+    summaryData = precipData.loc[ :, ["date", "precipBulk"] ].copy()
 
     # Retain days with no records between the first and last dates in the data.
     allDates = pd.date_range(precipData["date"].min(), precipData["date"].max(),
