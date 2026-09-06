@@ -65,7 +65,7 @@ def getDailySummary(path: Path):
     summaryData = summaryData.set_index("date").reindex(allDates).reset_index()
 
     # Format the output table: precipitation in mm.
-    summaryData["date"] = summaryData["date"].dt.date
+    summaryData["date"]       = summaryData["date"].dt.date
     summaryData["precipBulk"] = summaryData["precipBulk"].round(2)
 
     return summaryData
