@@ -30,6 +30,7 @@ def requireColumns(data: pd.DataFrame, requiredColumns: list[str], dataName: str
     if missingColumns:
         raise ValueError(f"Missing required columns in {dataName}: {missingColumns}")
 
+
 def readInputData():
     envData = pd.read_csv(ENV_FILE)
     mosData = pd.read_csv(MOS_FILE)
@@ -66,15 +67,13 @@ def readInputData():
         envData["tempMeanRolling"] = (
             envData["tempMean"]
             .rolling(ROLLING_WINDOW, min_periods=1)
-            .mean()
-        )
+            .mean() )
 
     if HUMIDITY and SHOW_HUMIDITY_ROLLING_MEAN:
         envData["rhMeanRolling"] = (
             envData["rhMean"]
             .rolling(ROLLING_WINDOW, min_periods=1)
-            .mean()
-        )
+            .mean() )
 
     return envData, mosData
 
@@ -86,15 +85,13 @@ def addYearGuides(ax, startYear: int, endYear: int):
                 ax.axvspan(
                     pd.Timestamp(f"{year}-01-01"),
                     pd.Timestamp(f"{year + 1}-01-01"),
-                    alpha=0.06
-                )
+                    alpha=0.06)
 
     for year in range(startYear + 1, endYear + 1):
         ax.axvline(
             pd.Timestamp(f"{year}-01-01"),
             linewidth=0.8,
-            alpha=0.45
-        )
+            alpha=0.45)
 
 
 def makeFigure(envData: pd.DataFrame, mosData: pd.DataFrame):
@@ -108,8 +105,7 @@ def makeFigure(envData: pd.DataFrame, mosData: pd.DataFrame):
         1,
         figsize=(14, 2.3 * panelCount + 1.5),
         sharex=True,
-        gridspec_kw={"hspace": 0.08}
-    )
+        gridspec_kw={"hspace": 0.08} )
 
     if panelCount == 1:
         axes = [axes]
@@ -118,10 +114,8 @@ def makeFigure(envData: pd.DataFrame, mosData: pd.DataFrame):
 
     panelIndex = 0
 
-    # ------------------------------------------------------------
-    # Panel A: Mosquito abundance
-    # ------------------------------------------------------------
-
+    # Mosquito abundance panel
+    
     axMos = axes[panelIndex]
     panelIndex += 1
 
@@ -133,32 +127,22 @@ def makeFigure(envData: pd.DataFrame, mosData: pd.DataFrame):
             yearData["abundance24h"],
             linewidth=1.0,
             alpha=0.7,
-            color="0.55"
-        )
+            color="0.55")
 
     axMos.scatter(
         mosData["eventStart"],
         mosData["abundance24h"],
         s=26,
         zorder=3,
-        color="0.10"
-    )
+        color="0.10")
 
     if USE_LOG_ABUNDANCE:
         axMos.set_yscale("symlog", linthresh=10)
 
-    axMos.set_ylabel(
-        "Mosquito\nabundance24h"
-    )
+    axMos.set_ylabel("Mosquito\nabundance24h")
 
-    axMos.set_title(
-        "Seasonal Mosquito Abundance and Meteorological Conditions "
-        "at HARV, 2017–2024"
-    )
 
-    # ------------------------------------------------------------
-    # Temperature
-    # ------------------------------------------------------------
+    # Temperature panel
 
     if TEMP:
         axTemp = axes[panelIndex]
@@ -172,8 +156,7 @@ def makeFigure(envData: pd.DataFrame, mosData: pd.DataFrame):
             linewidth=0.8,
             alpha=0.45,
             color="0.55",
-            label="Daily mean"
-        )
+            label="Daily mean")
 
         if SHOW_TEMP_ROLLING_MEAN:
             validRolling = envData["tempMeanRolling"].notna()
@@ -183,21 +166,13 @@ def makeFigure(envData: pd.DataFrame, mosData: pd.DataFrame):
                 envData.loc[validRolling, "tempMeanRolling"],
                 linewidth=1.5,
                 color="0.10",
-                label=f"{ROLLING_WINDOW}-day mean"
-            )
+                label=f"{ROLLING_WINDOW}-day mean")
 
-            axTemp.legend(
-                loc="upper left",
-                frameon=False
-            )
+            axTemp.legend(loc="upper left", frameon=False)
 
-        axTemp.set_ylabel(
-            "Temp\n(°C)"
-        )
+        axTemp.set_ylabel("Temp\n(°C)")
 
-    # ------------------------------------------------------------
-    # Relative humidity
-    # ------------------------------------------------------------
+    # Relative humidity panel
 
     if HUMIDITY:
         axHumidity = axes[panelIndex]
@@ -211,8 +186,7 @@ def makeFigure(envData: pd.DataFrame, mosData: pd.DataFrame):
             linewidth=0.8,
             alpha=0.45,
             color="0.55",
-            label="Daily mean"
-        )
+            label="Daily mean")
 
         if SHOW_HUMIDITY_ROLLING_MEAN:
             validRolling = envData["rhMeanRolling"].notna()
@@ -222,21 +196,13 @@ def makeFigure(envData: pd.DataFrame, mosData: pd.DataFrame):
                 envData.loc[validRolling, "rhMeanRolling"],
                 linewidth=1.5,
                 color="0.10",
-                label=f"{ROLLING_WINDOW}-day mean"
-            )
+                label=f"{ROLLING_WINDOW}-day mean")
 
-            axHumidity.legend(
-                loc="upper left",
-                frameon=False
-            )
+            axHumidity.legend(loc="upper left", frameon=False)
 
-        axHumidity.set_ylabel(
-            "Relative\nhumidity (%)"
-        )
+        axHumidity.set_ylabel("Relative\nhumidity (%)")
 
-    # ------------------------------------------------------------
-    # Precipitation
-    # ------------------------------------------------------------
+    # Precipitation panel
 
     if PRECIP:
         axPrecip = axes[panelIndex]
@@ -250,41 +216,25 @@ def makeFigure(envData: pd.DataFrame, mosData: pd.DataFrame):
             width=1.0,
             align="center",
             color="0.55",
-            alpha=0.9
-        )
+            alpha=0.9)
 
-        axPrecip.set_ylabel(
-            "Precip\n(mm)"
-        )
+        axPrecip.set_ylabel("Precip\n(mm)")
 
-    # ------------------------------------------------------------
     # Shared formatting
-    # ------------------------------------------------------------
 
     for ax in axes:
-        addYearGuides(
-            ax,
-            startYear,
-            endYear
-        )
+        addYearGuides(ax, startYear, endYear)
 
-        ax.set_xlim(
-            pd.Timestamp(START_DATE),
-            pd.Timestamp(END_DATE)
-        )
+        ax.set_xlim(pd.Timestamp(START_DATE), pd.Timestamp(END_DATE))
 
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
     axes[-1].set_xlabel("Date")
 
-    axes[-1].xaxis.set_major_locator(
-        mdates.YearLocator()
-    )
+    axes[-1].xaxis.set_major_locator( mdates.YearLocator() )
 
-    axes[-1].xaxis.set_major_formatter(
-        mdates.DateFormatter("%Y")
-    )
+    axes[-1].xaxis.set_major_formatter( mdates.DateFormatter("%Y") )
 
     fig.align_ylabels(axes)
     fig.tight_layout()
@@ -293,27 +243,14 @@ def makeFigure(envData: pd.DataFrame, mosData: pd.DataFrame):
 
 
 if __name__ == "__main__":
-    OUTPUT_DIR.mkdir(
-        parents=True,
-        exist_ok=True
-    )
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     envDf, mosDf = readInputData()
-
-    fig = makeFigure(
-        envDf,
-        mosDf
-    )
+    fig = makeFigure(envDf, mosDf)
 
     fig.savefig(
         OUTPUT_DIR / "neon-seasonal-mosquito-weather-timeseries.png",
         dpi=300,
-        bbox_inches="tight"
-    )
-
-    fig.savefig(
-        OUTPUT_DIR / "neon-seasonal-mosquito-weather-timeseries.pdf",
-        bbox_inches="tight"
-    )
+        bbox_inches="tight")
 
     plt.show()
