@@ -57,9 +57,17 @@ def getDailySummary(path: Path):
     summaryData = precipData.loc[ :, ["date", "precipBulk"] ].copy()
 
     # Retain days with no records between the first and last dates in the data.
-    allDates = pd.date_range(precipData["date"].min(), precipData["date"].max(),
-                             freq="D", name="date")
-    summaryData = summaryData.set_index("date").reindex(allDates).reset_index()
+    allDates = pd.DataFrame({
+        "date": pd.date_range(
+            precipData["date"].min(),
+            precipData["date"].max(),
+            freq="D")
+    })
+    summaryData = allDates.merge(
+        summaryData,
+        on="date",
+        how="left"
+    )
 
     # Format the output table: precipitation in mm.
     summaryData["date"]       = summaryData["date"].dt.date
