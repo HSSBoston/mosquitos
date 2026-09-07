@@ -35,29 +35,16 @@ def readInputData():
     mosData = pd.read_csv(MOS_FILE)
 
     requiredEnvColumns = ["date"]
+    if TEMP:     requiredEnvColumns.append("tempMean")
+    if HUMIDITY: requiredEnvColumns.append("rhMean")
+    if PRECIP:   requiredEnvColumns.append("precipBulk")
+    requireColumns(envData, requiredEnvColumns, "environment data")
 
-    if TEMP:
-        requiredEnvColumns.append("tempMean")
+    requireColumns(mosData,
+                   ["eventID", "eventStart", "completePlots", "abundance24h"],
+                   "mosquito abundance data")
 
-    if HUMIDITY:
-        requiredEnvColumns.append("rhMean")
-
-    if PRECIP:
-        requiredEnvColumns.append("precipBulk")
-
-    requireColumns(
-        envData,
-        requiredEnvColumns,
-        "environment data"
-    )
-
-    requireColumns(
-        mosData,
-        ["eventID", "eventStart", "completePlots", "abundance24h"],
-        "mosquito abundance data"
-    )
-
-    envData["date"] = pd.to_datetime(envData["date"])
+    envData["date"]       = pd.to_datetime(envData["date"])
     mosData["eventStart"] = pd.to_datetime(mosData["eventStart"])
 
     envData = envData.loc[
