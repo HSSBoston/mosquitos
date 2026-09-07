@@ -3,6 +3,9 @@
 from pathlib import Path
 import pandas as pd
 
+START_DATE = "2017-01-01"
+END_DATE   = "2024-12-31"
+
 PRJ_DIR    = Path(__file__).parent
 OUTPUT_DIR = PRJ_DIR / "output"
 
@@ -38,15 +41,14 @@ def getDailyEnvironmentData():
     dailyData = tempRhData.merge(
         precipData,
         on="date",
-        how="outer"
-    )
+        how="outer")
 
     dailyData = dailyData.sort_values("date").reset_index(drop=True)
 
-    # Restrict to the period shared with the planned mosquito analysis.
+    # Restrict to the period with START_DATE and END_DATE
     dailyData = dailyData.loc[
-        (dailyData["date"] >= "2017-01-01")
-        & (dailyData["date"] <= "2024-12-31")
+        (dailyData["date"] >= START_DATE)
+        & (dailyData["date"] <= END_DATE)
     ].copy()
 
     dailyData["date"] = dailyData["date"].dt.date
