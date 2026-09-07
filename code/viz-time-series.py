@@ -1,23 +1,14 @@
 from pathlib import Path
-
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
 
+START_DATE = "2017-01-01"
+END_DATE   = "2024-12-31"
 
 TEMP = True
 PRECIP = True
 HUMIDITY = True
-
-
-PRJ_DIR    = Path(__file__).parent
-OUTPUT_DIR = PRJ_DIR / "output"
-
-ENV_FILE = OUTPUT_DIR / "neon-environment-by-day.csv"
-MOS_FILE = OUTPUT_DIR / "neon-mos-abundance-by-event-multiple-mo.csv"
-
-START_DATE = "2017-01-01"
-END_DATE   = "2024-12-31"
 
 SHOW_TEMP_ROLLING_MEAN     = True
 SHOW_HUMIDITY_ROLLING_MEAN = True
@@ -25,6 +16,12 @@ ROLLING_WINDOW             = 7
 
 USE_LOG_ABUNDANCE     = False
 SHADE_ALTERNATE_YEARS = False
+
+PRJ_DIR    = Path(__file__).parent
+OUTPUT_DIR = PRJ_DIR / "output"
+
+ENV_FILE = OUTPUT_DIR / "neon-environment-by-day.csv"
+MOS_FILE = OUTPUT_DIR / "neon-mos-abundance-by-event-multiple-mo.csv"
 
 
 def requireColumns(data: pd.DataFrame, requiredColumns: list[str], dataName: str):
@@ -37,7 +34,6 @@ def requireColumns(data: pd.DataFrame, requiredColumns: list[str], dataName: str
         raise ValueError(
             f"Missing required columns in {dataName}: {missingColumns}"
         )
-
 
 def readInputData():
     envData = pd.read_csv(ENV_FILE)
