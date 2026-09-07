@@ -1,7 +1,14 @@
 from pathlib import Path
+
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
+
+
+TEMP = True
+PRECIP = True
+HUMIDITY = True
+
 
 PRJ_DIR    = Path(__file__).parent
 OUTPUT_DIR = PRJ_DIR / "output"
@@ -12,14 +19,20 @@ MOS_FILE = OUTPUT_DIR / "neon-mos-abundance-by-event-multiple-mo.csv"
 START_DATE = "2017-01-01"
 END_DATE   = "2024-12-31"
 
-SHOW_TEMP_ROLLING_MEAN = True
-TEMP_ROLLING_WINDOW    = 7
-USE_LOG_ABUNDANCE      = False
-SHADE_ALTERNATE_YEARS  = False
+SHOW_TEMP_ROLLING_MEAN     = True
+SHOW_HUMIDITY_ROLLING_MEAN = True
+ROLLING_WINDOW             = 7
+
+USE_LOG_ABUNDANCE     = False
+SHADE_ALTERNATE_YEARS = False
 
 
 def requireColumns(data: pd.DataFrame, requiredColumns: list[str], dataName: str):
-    missingColumns = [column for column in requiredColumns if column not in data.columns]
+    missingColumns = [
+        column for column in requiredColumns
+        if column not in data.columns
+    ]
+
     if missingColumns:
         raise ValueError(
             f"Missing required columns in {dataName}: {missingColumns}"
@@ -30,9 +43,20 @@ def readInputData():
     envData = pd.read_csv(ENV_FILE)
     mosData = pd.read_csv(MOS_FILE)
 
+    requiredEnvColumns = ["date"]
+
+    if TEMP:
+        requiredEnvColumns.append("tempMean")
+
+    if HUMIDITY:
+        requiredEnvColumns.append("rhMean")
+
+    if PRECIP:
+        requiredEnvColumns.append("precipBulk")
+
     requireColumns(
         envData,
-        ["date", "tempMean", "precipBulk"],
+        requiredEnvColumns,
         "environment data"
     )
 
@@ -60,10 +84,17 @@ def readInputData():
 
     mosData["year"] = mosData["eventStart"].dt.year
 
-    if SHOW_TEMP_ROLLING_MEAN:
+    if TEMP and SHOW_TEMP_ROLLING_MEAN:
         envData["tempMeanRolling"] = (
             envData["tempMean"]
-            .rolling(TEMP_ROLLING_WINDOW, min_periods=1)
+            .rolling(ROLLING_WINDOW, min_periods=1)
+            .mean()
+        )
+
+    if HUMIDITY and SHOW_HUMIDITY_ROLLING_MEAN:
+        envData["rhMeanRolling"] = (
+            envData["rhMean"]
+            .rolling(ROLLING_WINDOW, min_periods=1)
             .mean()
         )
 
@@ -92,24 +123,33 @@ def makeFigure(envData: pd.DataFrame, mosData: pd.DataFrame):
     startYear = pd.Timestamp(START_DATE).year
     endYear   = pd.Timestamp(END_DATE).year
 
+    panelCount = 1 + TEMP + HUMIDITY + PRECIP
+
     fig, axes = plt.subplots(
-        3, 1,
-        figsize=(14, 8.5),
+        panelCount,
+        1,
+        figsize=(14, 2.3 * panelCount + 1.5),
         sharex=True,
-        gridspec_kw={
-            "height_ratios": [1.2, 1.0, 1.0],
-            "hspace": 0.08
-        }
+        gridspec_kw={"hspace": 0.08}
     )
 
-    axMos, axTemp, axPrecip = axes
+    if panelCount == 1:
+        axes = [axes]
+    else:
+        axes = list(axes)
+
+    panelIndex = 0
 
     # ------------------------------------------------------------
     # Panel A: Mosquito abundance
     # ------------------------------------------------------------
 
+    axMos = axes[panelIndex]
+    panelIndex += 1
+
     for _, yearData in mosData.groupby("year"):
         yearData = yearData.sort_values("eventStart")
+
         axMos.plot(
             yearData["eventStart"],
             yearData["abundance24h"],
@@ -129,72 +169,144 @@ def makeFigure(envData: pd.DataFrame, mosData: pd.DataFrame):
     if USE_LOG_ABUNDANCE:
         axMos.set_yscale("symlog", linthresh=10)
 
-    axMos.set_ylabel("Mosquito\nabundance24h")
+    axMos.set_ylabel(
+        "Mosquito\nabundance24h"
+    )
+
     axMos.set_title(
-        "Seasonal Mosquito Abundance and Meteorological Conditions at HARV, 2017–2024"
+        "Seasonal Mosquito Abundance and Meteorological Conditions "
+        "at HARV, 2017–2024"
     )
 
     # ------------------------------------------------------------
-    # Panel B: Daily temperature
+    # Temperature
     # ------------------------------------------------------------
 
-    validTemp = envData["tempMean"].notna()
+    if TEMP:
+        axTemp = axes[panelIndex]
+        panelIndex += 1
 
-    axTemp.plot(
-        envData.loc[validTemp, "date"],
-        envData.loc[validTemp, "tempMean"],
-        linewidth=0.8,
-        alpha=0.45,
-        color="0.55",
-        label="Daily mean"
-    )
+        validTemp = envData["tempMean"].notna()
 
-    if SHOW_TEMP_ROLLING_MEAN:
-        validRolling = envData["tempMeanRolling"].notna()
         axTemp.plot(
-            envData.loc[validRolling, "date"],
-            envData.loc[validRolling, "tempMeanRolling"],
-            linewidth=1.5,
-            color="0.10",
-            label=f"{TEMP_ROLLING_WINDOW}-day mean"
-        )
-        axTemp.legend(
-            loc="upper left",
-            frameon=False
+            envData.loc[validTemp, "date"],
+            envData.loc[validTemp, "tempMean"],
+            linewidth=0.8,
+            alpha=0.45,
+            color="0.55",
+            label="Daily mean"
         )
 
-    axTemp.set_ylabel("Temp\n(°C)")
+        if SHOW_TEMP_ROLLING_MEAN:
+            validRolling = envData["tempMeanRolling"].notna()
+
+            axTemp.plot(
+                envData.loc[validRolling, "date"],
+                envData.loc[validRolling, "tempMeanRolling"],
+                linewidth=1.5,
+                color="0.10",
+                label=f"{ROLLING_WINDOW}-day mean"
+            )
+
+            axTemp.legend(
+                loc="upper left",
+                frameon=False
+            )
+
+        axTemp.set_ylabel(
+            "Temp\n(°C)"
+        )
 
     # ------------------------------------------------------------
-    # Panel C: Daily precipitation
+    # Relative humidity
     # ------------------------------------------------------------
 
-    validPrecip = envData["precipBulk"].notna()
+    if HUMIDITY:
+        axHumidity = axes[panelIndex]
+        panelIndex += 1
 
-    axPrecip.bar(
-        envData.loc[validPrecip, "date"],
-        envData.loc[validPrecip, "precipBulk"],
-        width=1.0,
-        align="center",
-        color="0.55",
-        alpha=0.9
-    )
+        validHumidity = envData["rhMean"].notna()
 
-    axPrecip.set_ylabel("Precip\n(mm)")
-    axPrecip.set_xlabel("Date")
+        axHumidity.plot(
+            envData.loc[validHumidity, "date"],
+            envData.loc[validHumidity, "rhMean"],
+            linewidth=0.8,
+            alpha=0.45,
+            color="0.55",
+            label="Daily mean"
+        )
+
+        if SHOW_HUMIDITY_ROLLING_MEAN:
+            validRolling = envData["rhMeanRolling"].notna()
+
+            axHumidity.plot(
+                envData.loc[validRolling, "date"],
+                envData.loc[validRolling, "rhMeanRolling"],
+                linewidth=1.5,
+                color="0.10",
+                label=f"{ROLLING_WINDOW}-day mean"
+            )
+
+            axHumidity.legend(
+                loc="upper left",
+                frameon=False
+            )
+
+        axHumidity.set_ylabel(
+            "Relative\nhumidity (%)"
+        )
+
+    # ------------------------------------------------------------
+    # Precipitation
+    # ------------------------------------------------------------
+
+    if PRECIP:
+        axPrecip = axes[panelIndex]
+        panelIndex += 1
+
+        validPrecip = envData["precipBulk"].notna()
+
+        axPrecip.bar(
+            envData.loc[validPrecip, "date"],
+            envData.loc[validPrecip, "precipBulk"],
+            width=1.0,
+            align="center",
+            color="0.55",
+            alpha=0.9
+        )
+
+        axPrecip.set_ylabel(
+            "Precip\n(mm)"
+        )
 
     # ------------------------------------------------------------
     # Shared formatting
     # ------------------------------------------------------------
 
     for ax in axes:
-        addYearGuides(ax, startYear, endYear)
-        ax.set_xlim(pd.Timestamp(START_DATE), pd.Timestamp(END_DATE))
+        addYearGuides(
+            ax,
+            startYear,
+            endYear
+        )
+
+        ax.set_xlim(
+            pd.Timestamp(START_DATE),
+            pd.Timestamp(END_DATE)
+        )
+
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
-    axPrecip.xaxis.set_major_locator(mdates.YearLocator())
-    axPrecip.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+    axes[-1].set_xlabel("Date")
+
+    axes[-1].xaxis.set_major_locator(
+        mdates.YearLocator()
+    )
+
+    axes[-1].xaxis.set_major_formatter(
+        mdates.DateFormatter("%Y")
+    )
 
     fig.align_ylabels(axes)
     fig.tight_layout()
@@ -203,10 +315,17 @@ def makeFigure(envData: pd.DataFrame, mosData: pd.DataFrame):
 
 
 if __name__ == "__main__":
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    OUTPUT_DIR.mkdir(
+        parents=True,
+        exist_ok=True
+    )
 
     envDf, mosDf = readInputData()
-    fig = makeFigure(envDf, mosDf)
+
+    fig = makeFigure(
+        envDf,
+        mosDf
+    )
 
     fig.savefig(
         OUTPUT_DIR / "neon-seasonal-mosquito-weather-timeseries.png",
