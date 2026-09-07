@@ -13,19 +13,18 @@ OUTPUT_DIR = PRJ_DIR / "output"
 EXCLUDE_QC_ISSUES = True
 
 
-# Helper function to read and combine matching files in a single directory.
+# Helper function to read a matching file in a given directory.
 #
-def readNeonFiles(path: Path, pattern: str):
-    files = sorted(path.glob(pattern))
-    if not files: raise FileNotFoundError(f"No files found in {path} matching: {pattern}")
+def readNeonFile(path: Path, pattern: str):
+    files = list(path.glob(pattern))
+    if not files:      raise FileNotFoundError(f"No files found in {path} matching: {pattern}")
+    if len(files) > 1: raise ValueError(f"More than one file found in {path} matching: {pattern}")
 
-    data = pd.concat( [pd.read_csv(file) for file in files],
-                      ignore_index=True )
-    return data
+    return pd.read_csv(files[0])
 
 
 def getDailySummary(path: Path):
-    precipData = readNeonFiles(
+    precipData = readNeonFile(
         path, "NEON.D01.HARV.DP1.00044.001.900.000.01D.WEIPRE_daily.*.csv")
 
     if precipData.empty: raise ValueError("The matching files contain no observations.")
