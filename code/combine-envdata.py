@@ -58,10 +58,6 @@ if __name__ == "__main__":
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     dailyDf = getDailyEnvironmentData()
-
+    
     print(dailyDf.to_string(index=False))
-
-    dailyDf.to_csv(
-        OUTPUT_DIR / "neon-environment-by-day.csv",
-        index=False
-    )
+    dailyDf.to_csv( OUTPUT_DIR / "neon-environment-by-day.csv", index=False)
