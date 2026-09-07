@@ -41,7 +41,7 @@ def getDailyEnvironmentData():
     dailyData = tempRhData.merge(
         precipData,
         on="date",
-        how="outer")
+        how="outer") # Keep every "date" value in either DataFrame
 
     dailyData = dailyData.sort_values("date").reset_index(drop=True)
 
