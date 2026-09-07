@@ -29,13 +29,8 @@ def getDailyEnvironmentData():
         raise ValueError("Duplicate dates found in precipitation data.")
 
     # Keep only variables needed for the daily environmental table.
-    tempRhData = tempRhData.loc[
-        :, ["date", "tempMean", "rhMean"]
-    ].copy()
-
-    precipData = precipData.loc[
-        :, ["date", "precipBulk"]
-    ].copy()
+    tempRhData = tempRhData.loc[ :, ["date", "tempMean", "rhMean"] ].copy()
+    precipData = precipData.loc[ :, ["date", "precipBulk"] ].copy()
 
     # Preserve all dates available from either dataset.
     dailyData = tempRhData.merge(
