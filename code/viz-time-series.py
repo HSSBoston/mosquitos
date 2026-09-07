@@ -25,15 +25,10 @@ MOS_FILE = OUTPUT_DIR / "neon-mos-abundance-by-event-multiple-mo.csv"
 
 
 def requireColumns(data: pd.DataFrame, requiredColumns: list[str], dataName: str):
-    missingColumns = [
-        column for column in requiredColumns
-        if column not in data.columns
-    ]
-
+    missingColumns = [ column for column in requiredColumns
+                       if column not in data.columns ]
     if missingColumns:
-        raise ValueError(
-            f"Missing required columns in {dataName}: {missingColumns}"
-        )
+        raise ValueError(f"Missing required columns in {dataName}: {missingColumns}")
 
 def readInputData():
     envData = pd.read_csv(ENV_FILE)
