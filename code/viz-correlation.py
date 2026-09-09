@@ -59,24 +59,17 @@ def getLagValue(
     eventStart: pd.Timestamp,
     columnName: str,
     days: int,
-    summaryType: str
-):
+    summaryType: str):
     # Example for a 7-day window and eventStart = July 9:
     # use July 2 through July 8.
     startDate = eventStart - pd.Timedelta(days=days)
     endDate   = eventStart - pd.Timedelta(days=1)
 
-    windowDates = pd.date_range(
-        startDate,
-        endDate,
-        freq="D"
-    )
+    windowDates = pd.date_range(startDate,
+                                endDate,
+                                freq="D")
 
-    windowData = (
-        envData
-        .set_index("date")
-        .reindex(windowDates)[columnName]
-    )
+    windowData = envData.set_index("date").reindex(windowDates)[columnName]
 
     # Require a valid value for every day in the lag window.
     if windowData.notna().sum() != days:
@@ -88,9 +81,7 @@ def getLagValue(
     if summaryType == "sum":
         return windowData.sum()
 
-    raise ValueError(
-        f"Unknown summary type: {summaryType}"
-    )
+    raise ValueError(f"Unknown summary type: {summaryType}")
 
 
 def addLagVariables(envData: pd.DataFrame, mosData: pd.DataFrame):
