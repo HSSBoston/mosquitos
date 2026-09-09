@@ -2,26 +2,21 @@ from pathlib import Path
 import matplotlib.pyplot as plt, numpy as np, pandas as pd
 from scipy.stats import spearmanr
 
+START_DATE = "2018-01-01"
+END_DATE   = "2024-12-31"
+
 PRJ_DIR    = Path(__file__).parent
 OUTPUT_DIR = PRJ_DIR / "output"
 
 ENV_FILE = OUTPUT_DIR / "neon-environment-by-day.csv"
 MOS_FILE = OUTPUT_DIR / "neon-mos-abundance-by-event-multiple-mo.csv"
 
-START_DATE = "2018-01-01"
-END_DATE   = "2024-12-31"
-
 
 def requireColumns(data: pd.DataFrame, requiredColumns: list[str], dataName: str):
-    missingColumns = [
-        column for column in requiredColumns
-        if column not in data.columns
-    ]
-
+    missingColumns = [ column for column in requiredColumns
+                       if column not in data.columns ]
     if missingColumns:
-        raise ValueError(
-            f"Missing required columns in {dataName}: {missingColumns}"
-        )
+        raise ValueError(f"Missing required columns in {dataName}: {missingColumns}")
 
 
 def readInputData():
