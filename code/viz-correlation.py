@@ -1,10 +1,6 @@
 from pathlib import Path
-
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
+import matplotlib.pyplot as plt, numpy as np, pandas as pd
 from scipy.stats import spearmanr
-
 
 PRJ_DIR    = Path(__file__).parent
 OUTPUT_DIR = PRJ_DIR / "output"
