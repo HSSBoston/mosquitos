@@ -231,9 +231,7 @@ def makeFigure(envData: pd.DataFrame, mosData: pd.DataFrame):
         ax.spines["right"].set_visible(False)
 
     axes[-1].set_xlabel("Date")
-
     axes[-1].xaxis.set_major_locator( mdates.YearLocator() )
-
     axes[-1].xaxis.set_major_formatter( mdates.DateFormatter("%Y") )
 
     fig.align_ylabels(axes)
