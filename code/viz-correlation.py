@@ -23,19 +23,15 @@ def readInputData():
     envData = pd.read_csv(ENV_FILE)
     mosData = pd.read_csv(MOS_FILE)
 
-    requireColumns(
-        envData,
-        ["date", "tempMean", "rhMean", "precipBulk"],
-        "environment data"
-    )
+    requireColumns(envData,
+                   ["date", "tempMean", "rhMean", "precipBulk"],
+                   "environment data")
 
-    requireColumns(
-        mosData,
-        ["eventID", "eventStart", "completePlots", "abundance24h"],
-        "mosquito abundance data"
-    )
+    requireColumns(mosData,
+                   ["eventID", "eventStart", "completePlots", "abundance24h"],
+                   "mosquito abundance data")
 
-    envData["date"] = pd.to_datetime(envData["date"])
+    envData["date"]       = pd.to_datetime(envData["date"])
     mosData["eventStart"] = pd.to_datetime(mosData["eventStart"])
 
     if envData["date"].duplicated().any():
@@ -46,13 +42,11 @@ def readInputData():
 
     envData = envData.loc[
         (envData["date"] >= START_DATE)
-        & (envData["date"] <= END_DATE)
-    ].copy()
+        & (envData["date"] <= END_DATE) ].copy()
 
     mosData = mosData.loc[
         (mosData["eventStart"] >= START_DATE)
-        & (mosData["eventStart"] <= END_DATE)
-    ].copy()
+        & (mosData["eventStart"] <= END_DATE) ].copy()
 
     envData = envData.sort_values("date").reset_index(drop=True)
     mosData = mosData.sort_values("eventStart").reset_index(drop=True)
