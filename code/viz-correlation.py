@@ -195,7 +195,6 @@ def addScatterPanel(
     )
 
     ax.set_xlabel(xLabel)
-
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
@@ -205,41 +204,32 @@ def makeFigure(analysisData: pd.DataFrame):
         1,
         3,
         figsize=(13, 4.3),
-        sharey=True
-    )
+        sharey=True)
 
     addScatterPanel(
         axes[0],
         analysisData,
         "tempMean7d",
         "7-day mean temperature (°C)",
-        "A"
-    )
+        "A")
 
     addScatterPanel(
         axes[1],
         analysisData,
         "precipSum14d",
         "14-day cumulative precipitation (mm)",
-        "B"
-    )
+        "B")
 
     addScatterPanel(
         axes[2],
         analysisData,
         "rhMean7d",
         "7-day mean relative humidity (%)",
-        "C"
-    )
+        "C")
 
-    axes[0].set_ylabel(
-        "Mosquito abundance\nlog10(abundance24h + 1)"
-    )
+    axes[0].set_ylabel("Mosquito abundance\nlog10(abundance24h + 1)")
 
-    fig.tight_layout(
-        rect=[0, 0, 1, 0.93]
-    )
-
+    fig.tight_layout( rect=[0, 0, 1, 0.93] )
     return fig
 
 
