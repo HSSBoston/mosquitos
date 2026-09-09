@@ -236,11 +236,6 @@ def makeFigure(analysisData: pd.DataFrame):
         "Mosquito abundance\nlog10(abundance24h + 1)"
     )
 
-    fig.suptitle(
-        "Associations Between Mosquito Abundance and "
-        "Preceding Environmental Conditions at HARV, 2017–2024"
-    )
-
     fig.tight_layout(
         rect=[0, 0, 1, 0.93]
     )
