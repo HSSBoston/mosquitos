@@ -146,17 +146,9 @@ def addLagVariables(envData: pd.DataFrame, mosData: pd.DataFrame):
 def getAnalysisData(mosData: pd.DataFrame):
     # Use the same mosquito events in all three panels.
     analysisData = mosData.dropna(
-        subset=[
-            "abundance24h",
-            "tempMean7d",
-            "precipSum14d",
-            "rhMean7d"
-        ]
-    ).copy()
+        subset=["abundance24h", "tempMean7d", "precipSum14d", "rhMean7d"]).copy()
 
-    analysisData["logAbundance"] = np.log10(
-        analysisData["abundance24h"] + 1
-    )
+    analysisData["logAbundance"] = np.log10( analysisData["abundance24h"] + 1 )
 
     return analysisData
 
@@ -173,15 +165,13 @@ def addScatterPanel(
         data["logAbundance"],
         s=32,
         alpha=0.7,
-        color="0.15"
-    )
+        color="0.15")
 
     # Spearman correlation is calculated using the original abundance
     # values. The log transformation is only for visualization.
     rho, _ = spearmanr(
         data[xColumn],
-        data["abundance24h"]
-    )
+        data["abundance24h"])
 
     ax.text(
         0.05,
@@ -191,8 +181,7 @@ def addScatterPanel(
         f"n = {len(data)}",
         transform=ax.transAxes,
         ha="left",
-        va="top"
-    )
+        va="top")
 
     ax.set_xlabel(xLabel)
     ax.spines["top"].set_visible(False)
