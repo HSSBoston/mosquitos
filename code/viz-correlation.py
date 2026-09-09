@@ -8,7 +8,7 @@ OUTPUT_DIR = PRJ_DIR / "output"
 ENV_FILE = OUTPUT_DIR / "neon-environment-by-day.csv"
 MOS_FILE = OUTPUT_DIR / "neon-mos-abundance-by-event-multiple-mo.csv"
 
-START_DATE = "2017-01-01"
+START_DATE = "2018-01-01"
 END_DATE   = "2024-12-31"
 
 
@@ -244,44 +244,19 @@ def makeFigure(analysisData: pd.DataFrame):
 
 
 if __name__ == "__main__":
-    OUTPUT_DIR.mkdir(
-        parents=True,
-        exist_ok=True
-    )
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     envDf, mosDf = readInputData()
+    mosDf        = addLagVariables(envDf, mosDf)
+    analysisDf   = getAnalysisData(mosDf)
 
-    mosDf = addLagVariables(
-        envDf,
-        mosDf
-    )
+    print(f"Mosquito events from 2017–2024: {len(mosDf)}")
+    print(f"Events with complete data for all three panels: {len(analysisDf)}")
 
-    analysisDf = getAnalysisData(
-        mosDf
-    )
-
-    print(
-        f"Mosquito events from 2017–2024: {len(mosDf)}"
-    )
-
-    print(
-        f"Events with complete data for all three panels: "
-        f"{len(analysisDf)}"
-    )
-
-    fig = makeFigure(
-        analysisDf
-    )
-
+    fig = makeFigure(analysisDf)
     fig.savefig(
         OUTPUT_DIR / "neon-mosquito-environment-scatterplots.png",
         dpi=300,
-        bbox_inches="tight"
-    )
-
-    fig.savefig(
-        OUTPUT_DIR / "neon-mosquito-environment-scatterplots.pdf",
-        bbox_inches="tight"
-    )
+        bbox_inches="tight")
 
     plt.show()
