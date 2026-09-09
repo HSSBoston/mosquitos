@@ -65,21 +65,13 @@ def getLagValue(
     startDate = eventStart - pd.Timedelta(days=days)
     endDate   = eventStart - pd.Timedelta(days=1)
 
-    windowDates = pd.date_range(startDate,
-                                endDate,
-                                freq="D")
-
+    windowDates = pd.date_range(startDate, endDate, freq="D")
     windowData = envData.set_index("date").reindex(windowDates)[columnName]
 
     # Require a valid value for every day in the lag window.
-    if windowData.notna().sum() != days:
-        return np.nan
-
-    if summaryType == "mean":
-        return windowData.mean()
-
-    if summaryType == "sum":
-        return windowData.sum()
+    if windowData.notna().sum() != days: return np.nan
+    if summaryType == "mean":            return windowData.mean()
+    if summaryType == "sum":             return windowData.sum()
 
     raise ValueError(f"Unknown summary type: {summaryType}")
 
