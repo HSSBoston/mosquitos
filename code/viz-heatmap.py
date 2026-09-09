@@ -302,11 +302,11 @@ def makeFigure(correlationData: pd.DataFrame, sampleSize: int):
         "Spearman ρ"
     )
 
-    ax.set_title(
-        "Lagged Associations Between Mosquito Abundance and "
-        "Environmental Conditions at HARV, 2017–2024\n"
-        f"Spearman correlations; n = {sampleSize}"
-    )
+#     ax.set_title(
+#         "Lagged Associations Between Mosquito Abundance and "
+#         "Environmental Conditions at HARV, 2017–2024\n"
+#         f"Spearman correlations; n = {sampleSize}"
+#     )
 
     fig.tight_layout()
 
