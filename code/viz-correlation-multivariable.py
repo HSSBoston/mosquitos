@@ -420,7 +420,7 @@ def makeFigure(
         ax.text(0.05, 0.95,
 #                 f"{panelLabel}  {modelName}\n"
                 f"{modelName}\n"
-                f"Spearman ρ = {resultRow['spearmanRho']:.2f}\n"
+                f"Spearman ρ = {resultRow['spearmanRho']:.3f}\n"
 #                 f"R² = {resultRow['rSquared']:.2f}\n"
 #                 f"Adjusted R² = {resultRow['adjustedRSquared']:.2f}\n"
                 f"n = {int(resultRow['n'])}",
@@ -433,15 +433,11 @@ def makeFigure(
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
-    fig.supxlabel(
-        "Fitted mosquito abundance\n"
-        "log10(abundance24h + 1)"
-    )
+    fig.supxlabel("Fitted mosquito abundance\n"
+                  "log10(abundance24h + 1)")
 
-    fig.supylabel(
-        "Observed mosquito abundance\n"
-        "log10(abundance24h + 1)"
-    )
+    fig.supylabel("Observed mosquito abundance\n"
+                  "log10(abundance24h + 1)")
 
     fig.tight_layout()
 
@@ -474,10 +470,5 @@ if __name__ == "__main__":
     coefficientDf.to_csv( OUTPUT_DIR / "neon-mosquito-model-coefficients.csv", index=False )
 
     fig = makeFigure(analysisDf, summaryDf, fittedData)
-
-    fig.savefig(
-        OUTPUT_DIR / "neon-mosquito-model-comparison.png",
-        dpi=300,
-        bbox_inches="tight")
 
     plt.show()
