@@ -143,53 +143,27 @@ def getAnalysisData(mosData: pd.DataFrame):
 
         "rhMeanLag1to7d",
         "rhMeanLag8to14d",
-        "rhMeanLag15to21d"
-    ]
+        "rhMeanLag15to21d"]
 
     # Use exactly the same mosquito events for all nine correlations.
-    analysisData = mosData.dropna(
-        subset=["abundance24h"] + lagColumns
-    ).copy()
+    analysisData = mosData.dropna( subset=["abundance24h"] + lagColumns ).copy()
 
     return analysisData
 
 
 def getCorrelationData(analysisData: pd.DataFrame):
     predictorColumns = {
-        "Temperature": [
-            "tempMeanLag1to7d",
-            "tempMeanLag8to14d",
-            "tempMeanLag15to21d"
-        ],
-
-        "Precipitation": [
-            "precipSumLag1to7d",
-            "precipSumLag8to14d",
-            "precipSumLag15to21d"
-        ],
-
-        "Relative humidity": [
-            "rhMeanLag1to7d",
-            "rhMeanLag8to14d",
-            "rhMeanLag15to21d"
-        ]
-    }
+        "Temperature":       ["tempMeanLag1to7d", "tempMeanLag8to14d", "tempMeanLag15to21d"],
+        "Precipitation":     ["precipSumLag1to7d", "precipSumLag8to14d", "precipSumLag15to21d"],
+        "Relative humidity": ["rhMeanLag1to7d", "rhMeanLag8to14d", "rhMeanLag15to21d"] }
 
     correlationData = pd.DataFrame(
         index=predictorColumns.keys(),
-        columns=[
-            "1–7 days",
-            "8–14 days",
-            "15–21 days"
-        ],
-        dtype=float
-    )
+        columns=["1–7 days", "8–14 days", "15–21 days"], 
+        dtype=float)
 
     for predictorName, columns in predictorColumns.items():
-        for lagLabel, columnName in zip(
-            correlationData.columns,
-            columns
-        ):
+        for lagLabel, columnName in zip(correlationData.columns, columns):
             rho, _ = spearmanr(
                 analysisData[columnName],
                 analysisData["abundance24h"]
