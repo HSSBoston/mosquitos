@@ -11,7 +11,6 @@ Mosquitoes are more than a nuisance. They can transmit serious diseases such as 
     - [Precipitation - weighing gauge](https://data.neonscience.org/data-products/DP1.00044.001)
 - Google Earth Engine
     - NDVI
-- NASA POWER
 
 ## Presentations
 
