@@ -9,7 +9,7 @@ OUTPUT_DIR = PRJ_DIR / "output"
 ENV_FILE = OUTPUT_DIR / "neon-environment-by-day.csv"
 MOS_FILE = OUTPUT_DIR / "neon-mos-abundance-by-event-multiple-mo.csv"
 
-START_DATE = "2018-01-01"
+START_DATE = "2017-01-01"
 END_DATE   = "2024-12-31"
 
 

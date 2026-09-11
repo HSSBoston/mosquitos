@@ -2,7 +2,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt, numpy as np, pandas as pd
 from scipy.stats import spearmanr
 
-START_DATE = "2018-01-01"
+START_DATE = "2017-01-01"
 END_DATE   = "2024-12-31"
 
 PRJ_DIR    = Path(__file__).parent
@@ -89,7 +89,27 @@ def addLagVariables(envData: pd.DataFrame, mosData: pd.DataFrame):
                 "mean"
             )
     )
-
+    mosData["tempMean14d"] = mosData["eventStart"].apply(
+        lambda eventStart:
+            getLagValue(
+                envData,
+                eventStart,
+                "tempMean",
+                14,
+                "mean"
+            )
+    )
+    
+    mosData["precipSum7d"] = mosData["eventStart"].apply(
+        lambda eventStart:
+            getLagValue(
+                envData,
+                eventStart,
+                "precipBulk",
+                7,
+                "sum"
+            )
+    )
     mosData["precipSum14d"] = mosData["eventStart"].apply(
         lambda eventStart:
             getLagValue(
@@ -111,14 +131,26 @@ def addLagVariables(envData: pd.DataFrame, mosData: pd.DataFrame):
                 "mean"
             )
     )
-
+    mosData["rhMean14d"] = mosData["eventStart"].apply(
+        lambda eventStart:
+            getLagValue(
+                envData,
+                eventStart,
+                "rhMean",
+                14,
+                "mean"
+            )
+    )
     return mosData
 
 
 def getAnalysisData(mosData: pd.DataFrame):
     # Use the same mosquito events in all three panels.
     analysisData = mosData.dropna(
-        subset=["abundance24h", "tempMean7d", "precipSum14d", "rhMean7d"]).copy()
+        subset=["abundance24h",
+                "tempMean7d", "tempMean14d",
+                "precipSum7d", "precipSum14d",
+                "rhMean7d", "rhMean14d"]).copy()
 
     analysisData["logAbundance"] = np.log10( analysisData["abundance24h"] + 1 )
 
@@ -170,8 +202,8 @@ def makeFigure(analysisData: pd.DataFrame):
     addScatterPanel(
         axes[0],
         analysisData,
-        "tempMean7d",
-        "7-day mean temperature (°C)",
+        "tempMean14d",
+        "14-day mean temperature (°C)",
         "A")
 
     addScatterPanel(
@@ -184,8 +216,8 @@ def makeFigure(analysisData: pd.DataFrame):
     addScatterPanel(
         axes[2],
         analysisData,
-        "rhMean7d",
-        "7-day mean relative humidity (%)",
+        "rhMean14d",
+        "14-day mean relative humidity (%)",
         "C")
 
     axes[0].set_ylabel("Mosquito abundance\nlog10(abundance24h + 1)")
