@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt, numpy as np, pandas as pd
 from scipy.stats import spearmanr
 import statsmodels.api as sm
 
-
 START_DATE = "2017-01-01"
 END_DATE   = "2024-12-31"
 
@@ -15,7 +14,6 @@ MOS_FILE = OUTPUT_DIR / "neon-mos-abundance-by-event-multiple-mo.csv"
 
 
 # Model predictors are listed in coefficient order after the intercept.
-#
 MODEL_SPECS = [
     ("T",
      ["zTemp"]),
@@ -37,7 +35,6 @@ MODEL_SPECS = [
       "tempHumidity", "tempPrecip"])
 ]
 
-
 TERM_LABELS = {
     "zTemp":        "T",
     "zHumidity":    "H",
@@ -50,10 +47,7 @@ TERM_LABELS = {
 def requireColumns(data: pd.DataFrame, requiredColumns: list[str], dataName: str):
     missingColumns = [ column for column in requiredColumns
                        if column not in data.columns ]
-
-    if missingColumns:
-        raise ValueError(
-            f"Missing required columns in {dataName}: {missingColumns}")
+    if missingColumns: raise ValueError(f"Missing required columns in {dataName}: {missingColumns}")
 
 
 def readInputData():
