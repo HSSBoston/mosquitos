@@ -75,15 +75,10 @@ def getLagValue(
     if windowData.notna().sum() != expectedDays:
         return np.nan
 
-    if summaryType == "mean":
-        return windowData.mean()
+    if summaryType == "mean": return windowData.mean()
+    if summaryType == "sum":  return windowData.sum()
 
-    if summaryType == "sum":
-        return windowData.sum()
-
-    raise ValueError(
-        f"Unknown summary type: {summaryType}"
-    )
+    raise ValueError(f"Unknown summary type: {summaryType}")
 
 
 def addLagVariables(envData: pd.DataFrame, mosData: pd.DataFrame):
@@ -286,56 +281,25 @@ def makeFigure(correlationData: pd.DataFrame, sampleSize: int):
 
 
 if __name__ == "__main__":
-    OUTPUT_DIR.mkdir(
-        parents=True,
-        exist_ok=True
-    )
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     envDf, mosDf = readInputData()
+    mosDf        = addLagVariables(envDf, mosDf)
 
-    mosDf = addLagVariables(
-        envDf,
-        mosDf
-    )
+    analysisDf    = getAnalysisData(mosDf)
+    correlationDf = getCorrelationData(analysisDf)
 
-    analysisDf = getAnalysisData(
-        mosDf
-    )
-
-    correlationDf = getCorrelationData(
-        analysisDf
-    )
-
-    print(
-        f"Mosquito events from 2017–2024: {len(mosDf)}"
-    )
-
-    print(
-        f"Events with complete data for all nine lag variables: "
-        f"{len(analysisDf)}"
-    )
-
+    print(f"Mosquito events from 2017–2024: {len(mosDf)}")
+    print(f"Events with complete data for all nine lag variables: {len(analysisDf)}")
     print()
     print(correlationDf)
 
-    correlationDf.to_csv(
-        OUTPUT_DIR / "neon-mosquito-environment-lag-correlations.csv"
-    )
+    correlationDf.to_csv(OUTPUT_DIR / "neon-mosquito-environment-lag-correlations.csv")
 
-    fig = makeFigure(
-        correlationDf,
-        len(analysisDf)
-    )
-
+    fig = makeFigure(correlationDf, len(analysisDf))
     fig.savefig(
         OUTPUT_DIR / "neon-mosquito-environment-lag-heatmap.png",
         dpi=300,
-        bbox_inches="tight"
-    )
-
-    fig.savefig(
-        OUTPUT_DIR / "neon-mosquito-environment-lag-heatmap.pdf",
-        bbox_inches="tight"
-    )
+        bbox_inches="tight")
 
     plt.show()
