@@ -1,8 +1,5 @@
 from pathlib import Path
-
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
+import matplotlib.pyplot as plt, numpy as np, pandas as pd
 from scipy.stats import spearmanr
 
 
@@ -19,7 +16,6 @@ END_DATE   = "2024-12-31"
 def requireColumns(data: pd.DataFrame, requiredColumns: list[str], dataName: str):
     missingColumns = [ column for column in requiredColumns
                        if column not in data.columns ]
-
     if missingColumns:
         raise ValueError(f"Missing required columns in {dataName}: {missingColumns}")
 
@@ -28,19 +24,12 @@ def readInputData():
     envData = pd.read_csv(ENV_FILE)
     mosData = pd.read_csv(MOS_FILE)
 
-    requireColumns(
-        envData,
-        ["date", "tempMean", "rhMean", "precipBulk"],
-        "environment data"
-    )
+    requireColumns(envData, ["date", "tempMean", "rhMean", "precipBulk"],
+                   "environment data")
+    requireColumns(mosData, ["eventID", "eventStart", "completePlots", "abundance24h"],
+                   "mosquito abundance data")
 
-    requireColumns(
-        mosData,
-        ["eventID", "eventStart", "completePlots", "abundance24h"],
-        "mosquito abundance data"
-    )
-
-    envData["date"] = pd.to_datetime(envData["date"])
+    envData["date"]       = pd.to_datetime(envData["date"])
     mosData["eventStart"] = pd.to_datetime(mosData["eventStart"])
 
     if envData["date"].duplicated().any():
