@@ -8,7 +8,7 @@ Mosquitoes are more than a nuisance. They can transmit serious diseases such as 
 -  [National Ecological Observatory Network (NEON)](https://data.neonscience.org/)
     - [Mosquitoes sampled from CO2 traps](https://data.neonscience.org/data-products/DP1.10043.001/)
     - [Temperature and relative humidity](https://data.neonscience.org/data-products/DP1.00098.001)
-    - [](https://data.neonscience.org/data-products/DP1.00044.001)
+    - [Precipitation - weighing gauge](https://data.neonscience.org/data-products/DP1.00044.001)
 - Google Earth Engine
     - NDVI
 
