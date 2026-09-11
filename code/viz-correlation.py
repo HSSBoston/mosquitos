@@ -202,8 +202,8 @@ def makeFigure(analysisData: pd.DataFrame):
     addScatterPanel(
         axes[0],
         analysisData,
-        "tempMean14d",
-        "14-day mean temperature (°C)",
+        "tempMean7d",
+        "7-day mean temperature (°C)",
         "A")
 
     addScatterPanel(
@@ -216,8 +216,8 @@ def makeFigure(analysisData: pd.DataFrame):
     addScatterPanel(
         axes[2],
         analysisData,
-        "rhMean14d",
-        "14-day mean relative humidity (%)",
+        "rhMean7d",
+        "7-day mean relative humidity (%)",
         "C")
 
     axes[0].set_ylabel("Mosquito abundance\nlog10(abundance24h + 1)")
