@@ -17,15 +17,11 @@ END_DATE   = "2024-12-31"
 
 
 def requireColumns(data: pd.DataFrame, requiredColumns: list[str], dataName: str):
-    missingColumns = [
-        column for column in requiredColumns
-        if column not in data.columns
-    ]
+    missingColumns = [ column for column in requiredColumns
+                       if column not in data.columns ]
 
     if missingColumns:
-        raise ValueError(
-            f"Missing required columns in {dataName}: {missingColumns}"
-        )
+        raise ValueError(f"Missing required columns in {dataName}: {missingColumns}")
 
 
 def readInputData():
