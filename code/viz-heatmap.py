@@ -204,35 +204,22 @@ def getCorrelationData(analysisData: pd.DataFrame):
 
 
 def makeFigure(correlationData: pd.DataFrame, sampleSize: int):
-    fig, ax = plt.subplots(
-        figsize=(8.5, 4.8)
-    )
+    fig, ax = plt.subplots( figsize=(8.5, 4.8) )
 
     image = ax.imshow(
         correlationData.to_numpy(),
         cmap="coolwarm",
         vmin=-1,
         vmax=1,
-        aspect="auto"
-    )
+        aspect="auto")
 
-    ax.set_xticks(
-        np.arange(len(correlationData.columns))
-    )
-    ax.set_xticklabels(
-        correlationData.columns
-    )
+    ax.set_xticks(np.arange(len(correlationData.columns)))
+    ax.set_xticklabels(correlationData.columns)
 
-    ax.set_yticks(
-        np.arange(len(correlationData.index))
-    )
-    ax.set_yticklabels(
-        correlationData.index
-    )
-
-    ax.set_xlabel(
-        "Days before mosquito sampling"
-    )
+    ax.set_yticks(np.arange(len(correlationData.index)))
+    ax.set_yticklabels(correlationData.index)
+    
+    ax.set_xlabel("Days before mosquito sampling")
 
     # Display Spearman rho in each cell.
     for rowIndex in range(len(correlationData.index)):
