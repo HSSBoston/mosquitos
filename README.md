@@ -10,7 +10,7 @@ Mosquitoes are more than a nuisance. They can transmit serious diseases such as 
     - [Temperature and relative humidity](https://data.neonscience.org/data-products/DP1.00098.001)
     - [Precipitation - weighing gauge](https://data.neonscience.org/data-products/DP1.00044.001)
 - Google Earth Engine
-    - NDVI
+    - Normalized Difference Vegetation Index (NDVI)
 
 ## Presentations
 
