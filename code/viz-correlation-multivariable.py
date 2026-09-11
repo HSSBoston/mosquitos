@@ -449,34 +449,15 @@ def makeFigure(
 
 
 if __name__ == "__main__":
-    OUTPUT_DIR.mkdir(
-        parents=True,
-        exist_ok=True
-    )
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     envDf, mosDf = readInputData()
+    mosDf = addLagVariables(envDf, mosDf)
+    analysisDf = getAnalysisData(mosDf)
+    summaryDf, coefficientDf, fittedData = fitModels(analysisDf)
 
-    mosDf = addLagVariables(
-        envDf,
-        mosDf
-    )
-
-    analysisDf = getAnalysisData(
-        mosDf
-    )
-
-    summaryDf, coefficientDf, fittedData = fitModels(
-        analysisDf
-    )
-
-    print(
-        f"Mosquito events from 2017–2024: {len(mosDf)}"
-    )
-
-    print(
-        f"Events used in all six models: {len(analysisDf)}"
-    )
-
+    print(f"Mosquito events from 2017–2024: {len(mosDf)}")
+    print(f"Events used in all six models: {len(analysisDf)}")
     print()
 
     displayColumns = [
@@ -484,44 +465,19 @@ if __name__ == "__main__":
         "terms",
         "n",
         "spearmanRho",
-        "rSquared",
-        "adjustedRSquared",
-        "beta0",
-        "beta1",
-        "beta2",
-        "beta3",
-        "beta4",
-        "beta5"
-    ]
+        "rSquared", "adjustedRSquared",
+        "beta0", "beta1", "beta2", "beta3", "beta4", "beta5" ]
 
-    print(
-        summaryDf.loc[:, displayColumns]
-        .round(4)
-        .to_string(index=False)
-    )
+    print(summaryDf.loc[:, displayColumns].round(4).to_string(index=False))
 
-    # Save the full wide model-comparison table.
-    summaryDf.to_csv(
-        OUTPUT_DIR / "neon-mosquito-model-comparison.csv",
-        index=False
-    )
+    summaryDf.to_csv(     OUTPUT_DIR / "neon-mosquito-model-comparison.csv", index=False )
+    coefficientDf.to_csv( OUTPUT_DIR / "neon-mosquito-model-coefficients.csv", index=False )
 
-    # Also save a coefficient table that is easier to inspect.
-    coefficientDf.to_csv(
-        OUTPUT_DIR / "neon-mosquito-model-coefficients.csv",
-        index=False
-    )
-
-    fig = makeFigure(
-        analysisDf,
-        summaryDf,
-        fittedData
-    )
+    fig = makeFigure(analysisDf, summaryDf, fittedData)
 
     fig.savefig(
         OUTPUT_DIR / "neon-mosquito-model-comparison.png",
         dpi=300,
-        bbox_inches="tight"
-    )
+        bbox_inches="tight")
 
     plt.show()
