@@ -390,9 +390,32 @@ def makeFigure(
             color="0.15"
         )
 
+        # Fitted regression line.
+#         slope, intercept = np.polyfit(
+#             fittedValues,
+#             observedLog,
+#             1
+#         )
+# 
+#         xLine = np.linspace(
+#             fittedValues.min(),
+#             fittedValues.max(),
+#             100
+#         )
+# 
+#         yLine = intercept + slope * xLine
+# 
+#         ax.plot(
+#             xLine,
+#             yLine,
+#             linewidth=1.2,
+#             color="0.15",
+#             linestyle="--"
+#         )
+        
         # 1:1 reference line, not a fitted regression line.
         ax.plot([axisMin, axisMax], [axisMin, axisMax],
-                linewidth=1.0, color="0.65")
+                linewidth=1.0, linestyle="--", color="0.65")
 
         ax.text(0.05, 0.95,
 #                 f"{panelLabel}  {modelName}\n"
