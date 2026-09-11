@@ -238,36 +238,18 @@ def makeFigure(correlationData: pd.DataFrame, sampleSize: int):
     for rowIndex in range(len(correlationData.index)):
         for columnIndex in range(len(correlationData.columns)):
 
-            rho = correlationData.iloc[
-                rowIndex,
-                columnIndex
-            ]
+            rho = correlationData.iloc[ rowIndex, columnIndex ]
+            textColor = ( "white" if abs(rho) >= 0.5 else "black" )
+            ax.text(columnIndex,
+                    rowIndex,
+                    f"{rho:.2f}",
+                    ha="center",
+                    va="center",
+                    fontsize=12,
+                    color=textColor)
 
-            textColor = (
-                "white"
-                if abs(rho) >= 0.5
-                else "black"
-            )
-
-            ax.text(
-                columnIndex,
-                rowIndex,
-                f"{rho:.2f}",
-                ha="center",
-                va="center",
-                fontsize=12,
-                color=textColor
-            )
-
-    colorBar = fig.colorbar(
-        image,
-        ax=ax,
-        pad=0.03
-    )
-
-    colorBar.set_label(
-        "Spearman ρ"
-    )
+    colorBar = fig.colorbar(image, ax=ax, pad=0.03)
+    colorBar.set_label("Spearman ρ")
 
 #     ax.set_title(
 #         "Lagged Associations Between Mosquito Abundance and "
