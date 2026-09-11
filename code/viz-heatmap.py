@@ -34,19 +34,16 @@ def readInputData():
 
     if envData["date"].duplicated().any():
         raise ValueError("Duplicate dates found in environment data.")
-
     if mosData["eventID"].duplicated().any():
         raise ValueError("Duplicate event IDs found in mosquito data.")
 
     envData = envData.loc[
         (envData["date"] >= START_DATE)
-        & (envData["date"] <= END_DATE)
-    ].copy()
+        & (envData["date"] <= END_DATE) ].copy()
 
     mosData = mosData.loc[
         (mosData["eventStart"] >= START_DATE)
-        & (mosData["eventStart"] <= END_DATE)
-    ].copy()
+        & (mosData["eventStart"] <= END_DATE) ].copy()
 
     envData = envData.sort_values("date").reset_index(drop=True)
     mosData = mosData.sort_values("eventStart").reset_index(drop=True)
@@ -70,18 +67,8 @@ def getLagValue(
     startDate = eventStart - pd.Timedelta(days=lastDay)
     endDate   = eventStart - pd.Timedelta(days=firstDay)
 
-    windowDates = pd.date_range(
-        startDate,
-        endDate,
-        freq="D"
-    )
-
-    windowData = (
-        envData
-        .set_index("date")
-        .reindex(windowDates)[columnName]
-    )
-
+    windowDates = pd.date_range(startDate, endDate, freq="D")
+    windowData = (envData.set_index("date").reindex(windowDates)[columnName] )
     expectedDays = lastDay - firstDay + 1
 
     # Require a valid environmental value for every day in the window.
