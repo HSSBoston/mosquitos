@@ -164,15 +164,9 @@ def getCorrelationData(analysisData: pd.DataFrame):
 
     for predictorName, columns in predictorColumns.items():
         for lagLabel, columnName in zip(correlationData.columns, columns):
-            rho, _ = spearmanr(
-                analysisData[columnName],
-                analysisData["abundance24h"]
-            )
-
-            correlationData.loc[
-                predictorName,
-                lagLabel
-            ] = rho
+            
+            rho, _ = spearmanr( analysisData[columnName], analysisData["abundance24h"] )
+            correlationData.loc[ predictorName, lagLabel ] = rho
 
     return correlationData
 
