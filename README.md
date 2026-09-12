@@ -1,4 +1,4 @@
-## Scoping and Integrating Public Datasets for Mosquito Surveillance 
+## Scoping and Integrating Public Datasets for Mosquito-Borne Disease Surveillance
 
 ## Project Summary
 
@@ -8,7 +8,7 @@ This project uses a scoping review approach aligned with PRISMA-ScR to identify 
 
 
 ## Datasets
--  [NSF National Ecological Observatory Network (NEON)](https://data.neonscience.org/)
+-  [National Ecological Observatory Network (NEON)](https://data.neonscience.org/)
     - [Mosquitoes sampled from CO2 traps](https://data.neonscience.org/data-products/DP1.10043.001/)
     - [Temperature and relative humidity](https://data.neonscience.org/data-products/DP1.00098.001)
     - [Precipitation - weighing gauge](https://data.neonscience.org/data-products/DP1.00044.001)
