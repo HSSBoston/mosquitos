@@ -1,4 +1,4 @@
-## Data Analytics for Mosquito-Borne Disease Surveillance
+## Scoping and Integrating Public Datasets for Mosquito Surveillance 
 
 ## Project Summary
 
