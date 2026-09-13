@@ -18,5 +18,5 @@ This project uses a scoping review approach aligned with PRISMA-ScR to identify 
 
 ## Presentations
 
-- AnimalHack 2026
+- AnimalHack 2026, September 2026
 
