@@ -1,4 +1,6 @@
+<!--
 ## Scoping and Integrating Public Datasets for Mosquito-Borne Disease Surveillance
+-->
 
 <p align="center">
   <img src="./images/logo.jpg" width="650" />
