@@ -1,5 +1,9 @@
 ## Scoping and Integrating Public Datasets for Mosquito-Borne Disease Surveillance
 
+<p align="center">
+  <img src="./images/logo.jpg" width="650" />
+</p>
+
 ## Project Summary
 
 Mosquitoes are more than a nuisance. They transmit serious diseases including West Nile virus (WNV), eastern equine encephalitis (EEE), malaria, dengue, Zika, and chikungunya. In the US, WNV is the leading cause of mosquito-borne disease in the contiguous states, while WNV and EEE remain important public health concerns in Massachusetts. Since no licensed vaccines or specific antiviral treatments are available for either WNV or EEE, prevention relies on mosquito-bite avoidance, mosquito control, and proactive surveillance. Effective surveillance requires tracking mosquito activity, environmental conditions (e.g., air temperature, humidity, and precipitation), and ecological factors (e.g., bird abundance and habitat characteristics) before human cases occur. 
