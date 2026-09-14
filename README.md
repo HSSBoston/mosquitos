@@ -18,5 +18,5 @@ This project uses a scoping review approach aligned with PRISMA-ScR to identify 
 
 ## Presentations
 
-- [AnimalHack 2026](https://animalhack2026.devpost.com/), September 2026
+- [Scoping and Integrating Public Datasets for Mosquito-Borne Disease Surveillance](https://github.com/HSSBoston/mosquitos), Excellence in Research Award, AnimalHack 2026, September 2026. 
 
