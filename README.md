@@ -22,7 +22,10 @@ This project uses a scoping review approach aligned with PRISMA-ScR to identify 
     - Normalized Difference Vegetation Index (NDVI)
 - Massachusetts Department of Public Heath
 
+<!--
+
 ## Presentations
 
 - [Scoping and Integrating Public Datasets for Mosquito-Borne Disease Surveillance](https://github.com/HSSBoston/mosquitos), Excellence in Research Award, AnimalHack 2026, September 2026. 
+-->
 
