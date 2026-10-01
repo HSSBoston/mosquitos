@@ -6,6 +6,11 @@
   <img src="./images/logo.jpg" width="650" />
 </p>
 
+## Short Project Summary
+
+Mosquito-borne disease surveillance requires integrating diverse information on mosquito activity, environmental conditions, habitat, and potential hosts. However, public datasets differ substantially in coverage, resolution, collection methods, and data quality. This paper conducted a PRISMA-ScR-aligned scoping review of publicly available quantitative data sources and a pilot integration of selected datasets. Searches of Google Dataset Search, Data.gov, and UNICEF Data Warehouse yielded 578 records, from which seven data sources were retained and reviewed. These sources cover mosquito activity and pathogens, meteorological conditions, terrestrial and habitat characteristics, and bird ecology. By integrating mosquito abundance, temperature and humidity, and precipitation data from the National Ecological Observatory Network, a pilot analysis visualized seasonal and year-to-year temporal patterns and examined preliminary relationships between mosquito abundance and environmental conditions. The results demonstrate both the potential of public datasets for integrated mosquito surveillance and the practical challenges involved in data integration. 
+
+
 ## Project Summary
 
 Mosquitoes are more than a nuisance. They transmit serious diseases including West Nile virus (WNV), eastern equine encephalitis (EEE), malaria, dengue, Zika, and chikungunya. In the US, WNV is the leading cause of mosquito-borne disease in the contiguous states, while WNV and EEE remain important public health concerns in Massachusetts. EEE virus is endemic in Massachusetts and naturally found in some passerine bird species living in and around freshwater swamp habitats. Since no licensed vaccines or specific antiviral treatments are available for WNV and EEE, prevention relies on mosquito-bite avoidance, mosquito control, and proactive surveillance. Effective surveillance requires combining different types of information, not only mosquito activity, but also meteorological conditions such as temperature, humidity, and precipitation; terrestrial and habitat characteristics such as vegetation and surface water; and ecological factors such as bird abundance and species composition. 
