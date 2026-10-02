@@ -25,9 +25,14 @@ This work evaluates the identified data sources in terms of their variables and 
     - Mosquitoes sampled from CO2 traps ([DP1.10043.001](https://data.neonscience.org/data-products/DP1.10043.001/))
     - Temperature and relative humidity ([DP1.00098.001](https://data.neonscience.org/data-products/DP1.00098.001))
     - Precipitation - weighing gauge ([DP1.00044.001](https://data.neonscience.org/data-products/DP1.00044.001))
-- Google Earth Engine
-    - Normalized Difference Vegetation Index (NDVI)
+    - 2D windspeed (DP1.00001.001)
+    - Vegetation indices (DP3.30026.001)
+- [Google Earth Engine](https://earthengine.google.com/)
+    - NLCD land cover and imperviousness
+    - MODIS Vegetation indices
+    - Sentinel-1 SAR
 - Massachusetts Department of Public Heath
+    - WNV/EEE-positive mos-quito pools
 
 ## Presentations
 
