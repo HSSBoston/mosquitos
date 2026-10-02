@@ -22,9 +22,9 @@ This work evaluates the identified data sources in terms of their variables and 
 
 ## Datasets
 -  [National Ecological Observatory Network (NEON)](https://data.neonscience.org/)
-    - [Mosquitoes sampled from CO2 traps](https://data.neonscience.org/data-products/DP1.10043.001/)
-    - [Temperature and relative humidity](https://data.neonscience.org/data-products/DP1.00098.001)
-    - [Precipitation - weighing gauge](https://data.neonscience.org/data-products/DP1.00044.001)
+    - Mosquitoes sampled from CO2 traps ([DP1.10043.001](https://data.neonscience.org/data-products/DP1.10043.001/))
+    - Temperature and relative humidity ([DP1.00098.001](https://data.neonscience.org/data-products/DP1.00098.001))
+    - Precipitation - weighing gauge ([DP1.00044.001](https://data.neonscience.org/data-products/DP1.00044.001))
 - Google Earth Engine
     - Normalized Difference Vegetation Index (NDVI)
 - Massachusetts Department of Public Heath
