@@ -42,7 +42,11 @@ This work evaluates the identified data sources in terms of their variables and 
     - Precipitation corrected (PRECTOTCORR)
     - Surface soil moisture (SFMC)
     - Evaporation land (EVLAND)
-    
+- [Cornell eBird](https://ebird.org/)
+    - eBird Basic Dataset 
+- [GLOBE Observer](https://observer.globe.gov/)
+    - Mosquito Habitat Mapper
+    - Land Cover
 
 ## Presentations
 
