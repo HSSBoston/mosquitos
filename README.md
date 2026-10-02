@@ -27,12 +27,22 @@ This work evaluates the identified data sources in terms of their variables and 
     - Precipitation - weighing gauge ([DP1.00044.001](https://data.neonscience.org/data-products/DP1.00044.001))
     - 2D windspeed (DP1.00001.001)
     - Vegetation indices (DP3.30026.001)
+- [Massachusetts Department of Public Heath](https://www.mass.gov/mosquito-borne-diseases)
+    - [WNV/EEE-positive mosquito data](https://www.mass.gov/lists/arbovirus-surveillance-plan-and-historical-data)
 - [Google Earth Engine](https://earthengine.google.com/)
     - NLCD land cover and imperviousness
     - MODIS Vegetation indices
     - Sentinel-1 SAR
-- Massachusetts Department of Public Heath
-    - WNV/EEE-positive mos-quito pools
+- [NASA POWER](https://power.larc.nasa.gov/)
+    - Temperature (T2M)
+    - Daily mininum and maximum temp (T2M_MIN, T2M_MAX)
+    - Relative humidity (RH2M)
+    - Specific humidify (QV2M)
+    - Wind speed (WS2M)
+    - Precipitation corrected (PRECTOTCORR)
+    - Surface soil moisture (SFMC)
+    - Evaporation land (EVLAND)
+    
 
 ## Presentations
 
