@@ -48,9 +48,11 @@ This work evaluates the identified data sources in terms of their variables and 
     - Mosquito Habitat Mapper
     - Land Cover
 
-## Presentations
 
 <!--
+## Publications
+
+## Presentations
 - [Scoping and Integrating Public Datasets for Mosquito-Borne Disease Surveillance](https://github.com/HSSBoston/mosquitos), Excellence in Research Award, AnimalHack 2026, September 2026. 
 -->
 
